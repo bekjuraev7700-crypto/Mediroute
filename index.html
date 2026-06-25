@@ -301,6 +301,11 @@ header{background:rgba(7,11,17,.95);backdrop-filter:blur(20px);border-bottom:1px
       <span class="bell" id="bell" onclick="showPage('alerts')">🔔<span class="bn" id="bell-n" style="display:none"></span></span>
       <span class="rb" id="h-role"></span>
       <span id="h-name" style="font-size:12px;font-weight:700;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      <select onchange="setLang(this.value)" style="background:var(--s);border:1px solid var(--b2);color:var(--m);border-radius:6px;padding:3px 6px;font-size:11px;cursor:pointer;width:auto">
+        <option value="ru">🇷🇺 РУ</option>
+        <option value="tg">🇹🇯 ТГ</option>
+        <option value="en">🇬🇧 EN</option>
+      </select>
       <button class="btn bg bsm" onclick="logout()">Выйти</button>
     </div>
   </header>
@@ -312,6 +317,7 @@ header{background:rgba(7,11,17,.95);backdrop-filter:blur(20px);border-bottom:1px
     <div class="tab" id="tab-alerts" onclick="showPage('alerts')">🚨 Алерты</div>
     <div class="tab" id="tab-doctors" onclick="showPage('doctors')">👨‍⚕️ Врачи</div>
     <div class="tab" id="tab-labs" onclick="showPage('labs')" style="display:none">🔬 Анализы</div>
+    <div class="tab" id="tab-stats" onclick="showPage('stats')" style="display:none">📊 Статистика</div>
     <div class="tab" id="tab-manage" onclick="showPage('manage')" style="display:none">🏗 Управление</div>
     <div class="tab" id="tab-audit" onclick="showPage('audit')" style="display:none">📋 Аудит</div>
   </div>
@@ -330,6 +336,7 @@ header{background:rgba(7,11,17,.95);backdrop-filter:blur(20px);border-bottom:1px
     <!-- PATIENTS -->
     <div class="page" id="page-patients">
       <div class="sec">Все пациенты <button class="btn bp bsm" onclick="openModal('modal-patient')">+ Зарегистрировать</button></div>
+      <input placeholder="🔍 Поиск по имени, палате, диагнозу..." oninput="filterPatients(this.value)" style="margin-bottom:12px;border-color:var(--b2)">
       <div class="pg" id="all-patients"></div>
     </div>
 
@@ -366,6 +373,11 @@ header{background:rgba(7,11,17,.95);backdrop-filter:blur(20px);border-bottom:1px
           <tbody id="audit-body"></tbody>
         </table>
       </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="page" id="page-stats">
+      <div id="stats-content"></div>
     </div>
 
     <!-- MANAGE -->
@@ -467,7 +479,10 @@ header{background:rgba(7,11,17,.95);backdrop-filter:blur(20px);border-bottom:1px
 <!-- MODAL: ОСМОТР -->
 <div class="overlay" id="modal-exam">
   <div class="modal">
-    <div class="mt">📋 Новый осмотр</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+      <div class="mt" style="margin:0">📋 Новый осмотр</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="template-btns"></div>
+    </div>
     <input type="hidden" id="ep-id">
     <div class="sbox">
       <div class="sbt">📊 Витальные функции</div>
@@ -923,7 +938,10 @@ async function login(){
     ip_address:navigator.userAgent.substring(0,45),resource_path:'/auth/login'});
 
   await loadAll();
-  await loadSuggestions(); // из registration.js: smart suggestions
+  await loadSuggestions();
+  requestNotifPermission();
+  startNotifications();
+  startDashRefresh();
 
   showScr('app');
   document.getElementById('h-name').textContent=doctor.short_name;
@@ -933,6 +951,7 @@ async function login(){
   document.getElementById('tab-labs').style.display=LAB_ROLES.includes(displayRole)?'':'none';
   document.getElementById('btn-add-doc').style.display=ADMIN_ROLES.includes(displayRole)?'':'none';
   document.getElementById('tab-manage').style.display=ADMIN_ROLES.includes(displayRole)?'':'none';
+  document.getElementById('tab-stats').style.display=ADMIN_ROLES.includes(displayRole)?'':'none';
   renderDashboard();
   btn.disabled=false;btn.textContent='Войти в SilkMed AI';
 }
@@ -1267,7 +1286,8 @@ async function renderPatientDetail(id){
           <button class="btn bp bsm" onclick="openExamModal('${p.id}')">+ Осмотр</button>
           <button class="btn bw bsm" onclick="openLabModal('${p.id}')">🔬 Анализы</button>
           <button class="btn bs bsm" onclick="openMedModal('${p.id}')">💊 Лекарство</button>
-          <button class="btn bg bsm" onclick="printPatientCard('${p.id}')">🖨 Печать</button>
+          <button class="btn bg bsm" onclick="printPatientCard('${p.id}')">🖨 Карта</button>
+          <button class="btn bg bsm" onclick="printPrescription('${p.id}')">📋 Рецепт</button>
           <button class="btn bd bsm" onclick="openDischarge('${p.id}')">📄 Выписка</button>
         </div>`:''}
       </div>
@@ -1381,6 +1401,16 @@ async function renderExamDetail(eid,pid){
 
 function openExamModal(pid){
   document.getElementById('ep-id').value=pid;
+  // Шаблоны осмотра по отделению пациента
+  const p=patients.find(x=>x.id===pid);
+  const dept=p?.department||'';
+  const tbEl=document.getElementById('template-btns');
+  if(tbEl){
+    const depts=dept?[dept,...Object.keys(EXAM_TEMPLATES).filter(d=>d!==dept)]:Object.keys(EXAM_TEMPLATES);
+    tbEl.innerHTML=depts.slice(0,3).map(d=>
+      `<button class="btn bg bsm" onclick="applyTemplate('${d}')">📋 ${d.substring(0,8)}</button>`
+    ).join('');
+  }
   const p=patients.find(x=>x.id===pid);
   if(p?.vitals){const v=p.vitals;
     if(v.spo2)document.getElementById('e-spo2').value=v.spo2;
@@ -1542,6 +1572,7 @@ function showPage(name){
   if(name==='labs')renderLabsPending();
   if(name==='audit')renderAudit();
   if(name==='manage')renderManage();
+  if(name==='stats')renderStats();
   setMNav(name);
 }
 function showScr(id){
@@ -1755,6 +1786,295 @@ async function saveHospital(){
 
 
 
+
+
+// ═══════════════════════════════════════════════
+// 📊 СТАТИСТИКА ГЛАВВРАЧА
+// ═══════════════════════════════════════════════
+async function renderStats(){
+  const el=document.getElementById('stats-content');
+  el.innerHTML='<div class="empty">⏳ Загрузка статистики...</div>';
+
+  const [allPats, allExams, allOrders, allAlerts, allDocs] = await Promise.all([
+    get('patients','order=created_at.asc'),
+    get('examinations','order=created_at.desc'),
+    get('medical_orders','order=created_at.desc'),
+    get('alerts','order=created_at.desc&limit=100'),
+    get('doctors','order=name.asc'),
+  ]);
+
+  const hospitalized = allPats.filter(p=>p.is_hospitalized);
+  const discharged   = allPats.filter(p=>!p.is_hospitalized);
+  const deaths       = allPats.filter(p=>p.discharge_reason&&p.discharge_reason.includes('death'));
+
+  // ALOS — средняя продолжительность госпитализации
+  const alos = discharged.length ? Math.round(
+    discharged.reduce((s,p)=>{
+      const days=(new Date(p.discharge_date||Date.now())-new Date(p.admission))/(86400000);
+      return s+Math.max(0,days);
+    },0) / discharged.length
+  ) : 0;
+
+  // Загруженность по отделениям
+  const deptStats={};
+  hospitalized.forEach(p=>{
+    if(!deptStats[p.department])deptStats[p.department]={name:p.department,count:0,critical:0};
+    deptStats[p.department].count++;
+    const n=calcNEWS2(p.vitals||{});
+    if(n.score>=5)deptStats[p.department].critical++;
+  });
+
+  // NEWS2 распределение
+  const news2dist={green:0,orange:0,red:0};
+  hospitalized.forEach(p=>{
+    const n=calcNEWS2(p.vitals||{});
+    if(n.score>=7)news2dist.red++;
+    else if(n.score>=5)news2dist.orange++;
+    else news2dist.green++;
+  });
+
+  // Врачи нагрузка
+  const docLoad={};
+  hospitalized.forEach(p=>{
+    if(!docLoad[p.doctor_id])docLoad[p.doctor_id]={count:0};
+    docLoad[p.doctor_id].count++;
+  });
+
+  const totalBeds=beds.length;
+  const occBeds=beds.filter(b=>b.is_occupied).length;
+  const occupancy=totalBeds?Math.round(occBeds/totalBeds*100):0;
+
+  el.innerHTML=`
+    <!-- KPI -->
+    <div class="sec" style="margin-top:0">Ключевые показатели больницы</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px">
+      ${[
+        {v:hospitalized.length, l:'Госпитализировано', c:'var(--al)', bg:'rgba(37,99,235,.08)'},
+        {v:discharged.length,   l:'Выписано всего',   c:'var(--ok)', bg:'rgba(16,185,129,.08)'},
+        {v:deaths.length,       l:'Летальных',        c:'var(--crit)', bg:'rgba(239,68,68,.08)'},
+        {v:alos+'д',            l:'Ср.продолж.(ALOS)', c:'var(--warn)', bg:'rgba(245,158,11,.08)'},
+        {v:occupancy+'%',       l:'Заполненность',    c:'var(--al)', bg:'rgba(37,99,235,.08)'},
+        {v:allDocs.length,      l:'Врачей в системе', c:'var(--pur)', bg:'rgba(124,58,237,.08)'},
+      ].map(s=>`<div class="card" style="text-align:center;padding:14px;background:${s.bg}">
+        <div style="font-size:28px;font-weight:800;color:${s.c};font-family:monospace">${s.v}</div>
+        <div style="font-size:9px;color:var(--m);margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${s.l}</div>
+      </div>`).join('')}
+    </div>
+
+    <!-- NEWS2 РИСКИ -->
+    <div class="sec">Распределение NEWS2 рисков</div>
+    <div class="card" style="padding:16px;margin-bottom:14px">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <span style="font-size:12px;padding:4px 12px;border-radius:20px;background:rgba(239,68,68,.15);color:#f87171;font-weight:700">🔴 Критический: ${news2dist.red}</span>
+        <span style="font-size:12px;padding:4px 12px;border-radius:20px;background:rgba(245,158,11,.15);color:#fbbf24;font-weight:700">🟠 Средний: ${news2dist.orange}</span>
+        <span style="font-size:12px;padding:4px 12px;border-radius:20px;background:rgba(16,185,129,.12);color:#34d399;font-weight:700">🟢 Низкий: ${news2dist.green}</span>
+      </div>
+      ${hospitalized.length?`<div style="display:flex;height:24px;border-radius:8px;overflow:hidden;gap:2px">
+        <div style="flex:${news2dist.red||0};background:var(--crit);opacity:.7;min-width:${news2dist.red?'2px':'0'}"></div>
+        <div style="flex:${news2dist.orange||0};background:var(--warn);opacity:.7;min-width:${news2dist.orange?'2px':'0'}"></div>
+        <div style="flex:${news2dist.green||0};background:var(--ok);opacity:.7;min-width:${news2dist.green?'2px':'0'}"></div>
+      </div>`:''}
+    </div>
+
+    <!-- ЗАГРУЖЕННОСТЬ ПО ОТДЕЛЕНИЯМ -->
+    <div class="sec">Загруженность отделений</div>
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px">
+      ${Object.values(deptStats).sort((a,b)=>b.count-a.count).map(d=>{
+        const dBeds=beds.filter(b=>departments.find(x=>x.id===b.department_id&&x.name_ru===d.name));
+        const cap=dBeds.length||10;
+        const pct=Math.min(100,Math.round(d.count/cap*100));
+        return`<div style="padding:10px 14px;border-bottom:1px solid var(--b)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:12px;font-weight:600">${d.name}</span>
+            <span style="font-size:11px;font-family:monospace;color:var(--m)">${d.count} пац. ${d.critical?'· <span style="color:#f87171">'+d.critical+' критич.</span>':''}</span>
+          </div>
+          <div style="height:6px;background:var(--b);border-radius:3px">
+            <div style="height:100%;width:${pct}%;background:${pct>80?'var(--crit)':pct>60?'var(--warn)':'var(--a)'};border-radius:3px;transition:width .3s"></div>
+          </div>
+        </div>`;
+      }).join('')||'<div class="empty">Нет данных</div>'}
+    </div>
+
+    <!-- НАГРУЗКА ВРАЧЕЙ -->
+    <div class="sec">Нагрузка врачей</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:14px">
+      ${allDocs.filter(d=>d.role==='physician'||d.role==='intensivist').map(d=>{
+        const cnt=docLoad[d.id]?.count||0;
+        return`<div class="card" style="padding:12px;display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;background:var(--grad);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">👨‍⚕️</div>
+          <div>
+            <div style="font-size:12px;font-weight:700">${d.short_name||d.name}</div>
+            <div style="font-size:11px;color:var(--m)">${d.department||'—'}</div>
+            <div style="font-size:13px;font-weight:800;color:${cnt>5?'var(--warn)':'var(--ok)'};font-family:monospace;margin-top:2px">${cnt} пациентов</div>
+          </div>
+        </div>`;
+      }).join('')||'<div class="empty">Нет врачей</div>'}
+    </div>
+
+    <!-- ПОСЛЕДНИЕ АЛЕРТЫ -->
+    <div class="sec">Последние 5 алертов</div>
+    ${allAlerts.slice(0,5).map(a=>`<div class="al ${a.severity>=4?'acr':'aw'}" style="margin-bottom:6px">
+      <span>${a.severity>=4?'🔴':'🟡'}</span>
+      <div style="flex:1"><div style="font-size:12px;font-weight:700">${a.title}</div>
+        <div style="font-size:10px;color:var(--m)">${new Date(a.created_at).toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    </div>`).join('')||'<div class="empty">Алертов нет</div>'}
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// 💊 ПЕЧАТЬ РЕЦЕПТА
+// ═══════════════════════════════════════════════
+function printPrescription(pid){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  const doc=doctors.find(d=>d.id===p.doctor_id)||doctor;
+  const w=window.open('','_blank','width=700,height=500');
+  w.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"><title>Рецепт</title>
+    <style>
+      body{font-family:Arial,sans-serif;font-size:12px;color:#000;padding:20px;max-width:600px;margin:0 auto}
+      .header{text-align:center;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:12px}
+      h2{font-size:15px;margin:0;text-transform:uppercase}
+      .rp-form{border:1px solid #000;padding:12px;margin:10px 0;min-height:120px}
+      .row{display:flex;gap:20px;margin-bottom:6px}
+      .field{flex:1;border-bottom:1px solid #999;padding-bottom:2px}
+      .label{font-size:9px;color:#666;text-transform:uppercase}
+      .sign-row{display:flex;justify-content:space-between;margin-top:20px}
+      .sign{text-align:center;width:180px}
+      .sign-line{border-top:1px solid #000;margin-bottom:3px}
+      @media print{button{display:none}}
+    </style>
+  </head><body>
+    <div class="header">
+      <h2>Рецепт / Prescription</h2>
+      <div>SilkMed AI · Дата: ${new Date().toLocaleDateString('ru')} · №${Date.now().toString().slice(-6)}</div>
+    </div>
+    <div class="row">
+      <div class="field"><div class="label">ФИО пациента</div><strong>${p.name}</strong></div>
+      <div class="field"><div class="label">Возраст</div><strong>${p.age} лет</strong></div>
+    </div>
+    <div class="row">
+      <div class="field"><div class="label">Врач</div><strong>${doc?doc.name:'—'}</strong></div>
+      <div class="field"><div class="label">Лицензия</div><strong>${doc?doc.license_number||'—':'—'}</strong></div>
+    </div>
+    <div class="rp-form">
+      <div style="font-size:11px;color:#666;margin-bottom:8px">Rp: (назначение)</div>
+      <div style="font-size:14px;font-family:monospace;min-height:80px">${
+        (p.conditions||[]).length
+          ? '// Назначения вносятся врачом вручную'
+          : '— '
+      }</div>
+    </div>
+    <div class="row">
+      <div class="field"><div class="label">Диагноз (МКБ-10)</div><div>${(p.conditions||[]).join(', ')||'—'}</div></div>
+    </div>
+    <div class="sign-row">
+      <div class="sign"><div class="sign-line"></div><div style="font-size:10px">Подпись врача / Signature</div></div>
+      <div class="sign"><div class="sign-line"></div><div style="font-size:10px">Печать / Stamp</div></div>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button onclick="window.print()" style="padding:8px 24px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer">🖨 Распечатать</button>
+    </div>
+  </body></html>`);
+  w.document.close();
+}
+
+// ═══════════════════════════════════════════════
+// 📋 ШАБЛОНЫ ОСМОТРОВ ПО СПЕЦИАЛЬНОСТИ
+// ═══════════════════════════════════════════════
+const EXAM_TEMPLATES = {
+  Кардиология:{
+    complaints:'Боли за грудиной, одышка при физической нагрузке, перебои в сердечном ритме',
+    objective_data:'Тоны сердца приглушены, ритм неправильный. Хрипов в лёгких нет. Отёки голеней.',
+    diagnosis:'ИБС. Нарушение ритма',icd10_code:'I20.9',
+    treatment:'Аспирин 100 мг, Бисопролол 5 мг, ЭКГ-мониторинг'
+  },
+  Неврология:{
+    complaints:'Головные боли, головокружение, онемение конечностей, нарушение речи',
+    objective_data:'Сознание ясное. Речь дизартрична. Сила в левых конечностях снижена до 3 баллов.',
+    diagnosis:'ОНМК по ишемическому типу',icd10_code:'I63.5',
+    treatment:'Аспирин 100 мг, Аторвастатин 40 мг, МРТ головного мозга'
+  },
+  Хирургия:{
+    complaints:'Боли в животе, тошнота, рвота, повышение температуры',
+    objective_data:'Живот напряжён, болезнен при пальпации в правой подвздошной области. Симптом Щёткина положительный.',
+    diagnosis:'Острый аппендицит',icd10_code:'K37',
+    treatment:'Экстренная аппендэктомия. Антибактериальная терапия.'
+  },
+  Терапия:{
+    complaints:'Кашель, одышка, повышение температуры, слабость',
+    objective_data:'Дыхание жёсткое. Мелкопузырчатые хрипы в нижних отделах. ЧД 22/мин.',
+    diagnosis:'Внебольничная пневмония',icd10_code:'J18.1',
+    treatment:'Амоксиклав 875/125 мг × 2р/д, рентген грудной клетки'
+  },
+  'ОИТ / Реанимация':{
+    complaints:'Нарушение сознания, выраженная одышка, нестабильная гемодинамика',
+    objective_data:'Сознание: сопор. ШКГ 9/15. АД нестабильное. SpO₂ < 90%. ЧД > 30/мин.',
+    diagnosis:'Полиорганная недостаточность',icd10_code:'R57.0',
+    treatment:'ИВЛ, вазопрессоры, коррекция электролитов, КЩС контроль каждые 4ч'
+  },
+  Гастроэнтерология:{
+    complaints:'Боли в эпигастрии, изжога, тошнота после еды, снижение аппетита',
+    objective_data:'Живот мягкий, умеренно болезненный в эпигастрии при пальпации. Печень не увеличена.',
+    diagnosis:'Язвенная болезнь желудка',icd10_code:'K25.3',
+    treatment:'Омепразол 20 мг × 2р/д, Амоксициллин 1000 мг × 2р/д, ФГДС'
+  },
+};
+
+function applyTemplate(dept){
+  const t=EXAM_TEMPLATES[dept];if(!t)return;
+  if(t.complaints)document.getElementById('e-comp').value=t.complaints;
+  if(t.objective_data)document.getElementById('e-obj').value=t.objective_data;
+  if(t.diagnosis)document.getElementById('e-diag').value=t.diagnosis;
+  if(t.icd10_code)document.getElementById('e-icd').value=t.icd10_code;
+  if(t.treatment)document.getElementById('e-treat').value=t.treatment;
+  toast('Шаблон «'+dept+'» применён','ok');
+}
+
+// ═══════════════════════════════════════════════
+// 🔔 УВЕДОМЛЕНИЯ — периодическая проверка
+// ═══════════════════════════════════════════════
+let notifTimer=null;
+let lastAlertCount=0;
+
+function startNotifications(){
+  if(notifTimer)clearInterval(notifTimer);
+  // Проверяем новые алерты каждые 60 секунд
+  notifTimer=setInterval(async()=>{
+    await loadAlerts();
+    if(alerts.length>lastAlertCount){
+      const diff=alerts.length-lastAlertCount;
+      showNotifBadge(diff+' новых алерт'+(diff>1?'ов':''));
+      // Браузерное уведомление если разрешено
+      if(Notification.permission==='granted'){
+        const latest=alerts[0];
+        new Notification('SilkMed AI — Алерт',{
+          body:latest.title+': '+latest.message,
+          icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏥</text></svg>'
+        });
+      }
+    }
+    lastAlertCount=alerts.length;
+    // Обновляем счётчик в мобильной навигации
+    const el=document.getElementById('mn-alert-count');
+    if(el)el.textContent=alerts.length?'Алерты('+alerts.length+')':'Алерты';
+  },60000);
+  lastAlertCount=alerts.length;
+}
+
+function showNotifBadge(msg){
+  const div=document.createElement('div');
+  div.style.cssText='position:fixed;top:60px;right:16px;background:var(--crit);color:#fff;padding:10px 16px;border-radius:10px;font-size:12px;font-weight:700;z-index:999;box-shadow:0 6px 20px rgba(0,0,0,.4)';
+  div.textContent='🔔 '+msg;
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(),4000);
+}
+
+function requestNotifPermission(){
+  if('Notification' in window&&Notification.permission==='default'){
+    Notification.requestPermission();
+  }
+}
 
 // ═══ ВЫПИСКА ПАЦИЕНТА ═══
 function openDischarge(pid){
@@ -2055,6 +2375,58 @@ function onDeptChange(val){
     else hint.textContent='⚠️ Нет данных о свободных койках';
     hint.style.display='block';
   }
+}
+
+
+// ═══════════════════════════════════════════════
+// 🔄 АВТООБНОВЛЕНИЕ ДАШБОРДА каждые 2 минуты
+// ═══════════════════════════════════════════════
+let dashTimer=null;
+function startDashRefresh(){
+  if(dashTimer)clearInterval(dashTimer);
+  dashTimer=setInterval(async()=>{
+    const activePage=document.querySelector('.page.active')?.id;
+    if(activePage==='page-dashboard'){
+      await loadAlerts();
+      renderDashboard();
+    }
+  },120000);
+}
+
+// ═══════════════════════════════════════════════
+// 🔍 ПОИСК ПАЦИЕНТОВ
+// ═══════════════════════════════════════════════
+function filterPatients(query){
+  const q=query.toLowerCase();
+  const filtered=q
+    ? patients.filter(p=>
+        p.name.toLowerCase().includes(q)||
+        (p.bed||'').toLowerCase().includes(q)||
+        (p.department||'').toLowerCase().includes(q)||
+        (p.conditions||[]).join(' ').toLowerCase().includes(q)
+      )
+    : patients;
+  document.getElementById('all-patients').innerHTML=renderPCards(filtered);
+}
+
+// ═══════════════════════════════════════════════
+// 🌐 СМЕНА ЯЗЫКА (РУ / ТГ / EN)
+// ═══════════════════════════════════════════════
+const LANGS={
+  ru:{dashboard:'📊 Главная',patients:'👥 Пациенты',beds:'🛏 Карта коек',alerts:'🚨 Алерты',doctors:'👨‍⚕️ Врачи'},
+  tg:{dashboard:'📊 Асосӣ',  patients:'👥 Беморон', beds:'🛏 Кровать',  alerts:'🚨 Огоҳӣ',  doctors:'👨‍⚕️ Духтурон'},
+  en:{dashboard:'📊 Home',   patients:'👥 Patients', beds:'🛏 Beds',     alerts:'🚨 Alerts',  doctors:'👨‍⚕️ Doctors'},
+};
+let currentLang='ru';
+function setLang(lang){
+  currentLang=lang;
+  const L=LANGS[lang];
+  document.getElementById('tab-dashboard').textContent=L.dashboard;
+  document.getElementById('tab-patients').textContent=L.patients;
+  document.getElementById('tab-beds').textContent=L.beds;
+  document.getElementById('tab-alerts').textContent=L.alerts;
+  document.getElementById('tab-doctors').textContent=L.doctors;
+  toast(lang==='ru'?'Язык: Русский':lang==='tg'?'Забон: Тоҷикӣ':'Language: English','ok');
 }
 
 // ═══ INIT ═══
