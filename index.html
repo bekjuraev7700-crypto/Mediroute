@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SilkMed AI v2.0</title>
+<style>
+:root{--bg:#070b11;--s:#0d1420;--c:#111827;--c2:#161f30;--b:#1a2540;--b2:#1e2d4a;--t:#e2e8f0;--m:#4a6080;--a:#2563eb;--al:#60a5fa;--crit:#ef4444;--warn:#f59e0b;--ok:#10b981;--pur:#7c3aed;--grad:linear-gradient(135deg,#2563eb,#7c3aed)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--t);min-height:100vh;font-size:14px}
+input,select,textarea{width:100%;background:var(--s);border:1px solid var(--b2);border-radius:8px;padding:10px 12px;color:var(--t);font-size:13px;outline:none;font-family:inherit;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--a);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+select option{background:var(--s)}
+label{font-size:10px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.9px;display:block;margin-bottom:5px;margin-top:12px}
+.btn{border:none;border-radius:9px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.bp{background:var(--grad);color:#fff;box-shadow:0 4px 15px rgba(37,99,235,.2)}
+.bs{background:var(--ok);color:#fff}
+.bd{background:var(--crit);color:#fff}
+.bw{background:var(--warn);color:#000}
+.bg{background:transparent;border:1px solid var(--b2);color:var(--m)}
+.bg:hover{border-color:var(--a);color:var(--al);transform:none}
+.bsm{padding:5px 12px;font-size:11px;border-radius:7px}
+.card{background:var(--c);border:1px solid var(--b);border-radius:14px;padding:18px;margin-bottom:12px}
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:5px;font-weight:700;margin-right:4px;margin-top:2px}
+.tb{background:rgba(37,99,235,.15);color:#60a5fa}
+.tg{background:rgba(16,185,129,.12);color:#34d399}
+.tr{background:rgba(239,68,68,.12);color:#f87171}
+.ty{background:rgba(245,158,11,.12);color:#fbbf24}
+.tp{background:rgba(124,58,237,.12);color:#a78bfa}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.g2{grid-template-columns:1fr}}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:560px){.g3{grid-template-columns:1fr 1fr}}
+header{background:rgba(7,11,17,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);padding:0 18px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:9px}
+.li{width:34px;height:34px;background:var(--grad);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.ln{font-weight:800;font-size:15px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.lv{font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(37,99,235,.15);color:#60a5fa;font-family:monospace;margin-left:4px;-webkit-text-fill-color:#60a5fa}
+.hr{display:flex;align-items:center;gap:8px}
+.rb{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700}
+.rbp{background:rgba(37,99,235,.15);color:#60a5fa;border:1px solid rgba(37,99,235,.3)}
+.rbi{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.rbl{background:rgba(124,58,237,.12);color:#a78bfa;border:1px solid rgba(124,58,237,.3)}
+.rba{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.3)}
+.bell{font-size:18px;cursor:pointer;position:relative;display:inline-block}
+.bn{position:absolute;top:-4px;right:-6px;background:var(--crit);color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:8px;text-align:center;line-height:15px;padding:0 3px}
+.tabs{display:flex;background:var(--s);border-bottom:1px solid var(--b);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:10px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--m);white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;flex-shrink:0}
+.tab.active{color:var(--a);border-bottom-color:var(--a)}
+.tab:hover{color:var(--t)}
+.main{padding:16px;max-width:1000px;margin:0 auto}
+.page{display:none}
+.page.active{display:block;animation:fi .25s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:9px;margin-bottom:16px}
+.stat{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:13px;text-align:center;transition:all .2s;cursor:default}
+.stat:hover{border-color:var(--a);transform:translateY(-2px)}
+.sv{font-family:monospace;font-size:22px;font-weight:800;line-height:1}
+.sl{font-size:9px;color:var(--m);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.sec{font-size:11px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.9px;margin:16px 0 10px;display:flex;align-items:center;justify-content:space-between}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:10px}
+.pc{background:var(--c);border:1px solid var(--b);border-radius:13px;padding:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0;transition:opacity .2s}
+.pc:hover{border-color:var(--a);transform:translateY(-2px);box-shadow:0 8px 25px rgba(37,99,235,.1)}
+.pc:hover::before{opacity:1}
+.pc.locked{opacity:.45;cursor:not-allowed}
+.pc.locked:hover{transform:none;border-color:var(--b);box-shadow:none}
+.pc.locked:hover::before{opacity:0}
+.pn{font-size:13px;font-weight:700;margin-bottom:3px}
+.pm{font-size:11px;color:var(--m);font-family:monospace}
+.pills{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.pill{font-size:10px;padding:3px 8px;border-radius:5px;font-family:monospace;border:1px solid;font-weight:600}
+.pok{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25);color:#34d399}
+.pw{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:#fbbf24}
+.pcr{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.35);color:#f87171}
+.vg{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px;margin-bottom:14px}
+.vc{border-radius:10px;padding:11px;text-align:center;transition:all .2s}
+.vc:hover{transform:scale(1.03)}
+.vok{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.25)}
+.vw{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.35)}
+.vcr{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.4)}
+.vv{font-family:monospace;font-size:18px;font-weight:800}
+.vl{font-size:9px;color:var(--m);margin-top:4px;text-transform:uppercase}
+.al{display:flex;align-items:flex-start;gap:10px;background:var(--c);border-radius:11px;padding:11px 13px;margin-bottom:7px;transition:all .2s}
+.al:hover{transform:translateX(3px)}
+.acr{border-left:3px solid var(--crit);background:rgba(239,68,68,.03)}
+.aw{border-left:3px solid var(--warn);background:rgba(245,158,11,.03)}
+.aok{border-left:3px solid var(--ok)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:200;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.overlay.open{display:flex}
+.modal{background:var(--c);border:1px solid var(--b2);border-radius:18px;padding:24px;width:100%;max-width:580px;margin:auto;box-shadow:0 25px 60px rgba(0,0,0,.5)}
+.mt{font-size:16px;font-weight:700;margin-bottom:18px}
+.mf{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--b)}
+.sbox{background:rgba(37,99,235,.04);border:1px solid rgba(37,99,235,.1);border-radius:11px;padding:14px;margin-bottom:12px}
+.sbt{font-size:10px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.9px;margin-bottom:12px}
+/* NEWS2 BADGE */
+.n2r{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;font-family:monospace}
+.n2-red{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.n2-orange{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.n2-green{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.25)}
+/* BED MAP */
+.bed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+.bed{border-radius:9px;padding:10px;text-align:center;border:2px solid;transition:all .2s;cursor:default}
+.bed-free{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.3);color:#34d399}
+.bed-occ{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.35);color:#f87171}
+.bed-ico{font-size:22px;display:block;margin-bottom:4px}
+.bed-code{font-size:9px;font-family:monospace;color:var(--m)}
+/* MED ORDERS */
+.mo{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--b)}
+.mo:last-child{border-bottom:none}
+.mo:hover{background:rgba(37,99,235,.04)}
+.mo-s{font-size:10px;padding:2px 8px;border-radius:5px;font-weight:700;font-family:monospace}
+.s-ip{background:rgba(37,99,235,.12);color:#60a5fa}
+.s-done{background:rgba(16,185,129,.1);color:#34d399}
+.s-pend{background:rgba(245,158,11,.1);color:#fbbf24}
+/* AI BLOCK */
+.aib{background:linear-gradient(135deg,rgba(37,99,235,.08),rgba(124,58,237,.08));border:1px solid rgba(37,99,235,.2);border-radius:13px;padding:15px;margin-bottom:12px}
+.sug{display:flex;align-items:center;gap:9px;padding:7px 11px;background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.1);border-radius:7px;margin-bottom:5px;font-size:12px;transition:all .2s}
+.sug:hover{background:rgba(37,99,235,.1);transform:translateX(3px)}
+.sug::before{content:'→';color:#60a5fa;font-family:monospace;font-weight:700;flex-shrink:0}
+/* AUDIT */
+.at{width:100%;border-collapse:collapse}
+.at th{font-size:10px;text-transform:uppercase;color:var(--m);font-weight:700;padding:8px 10px;text-align:left;border-bottom:1px solid var(--b);letter-spacing:.5px}
+.at td{font-size:11px;padding:8px 10px;border-bottom:1px solid var(--b);font-family:monospace}
+.at tr:hover td{background:rgba(37,99,235,.04)}
+/* MISC */
+.bb{background:transparent;border:1px solid var(--b2);color:var(--m);padding:6px 13px;border-radius:7px;cursor:pointer;font-size:12px;margin-bottom:14px;font-family:inherit;transition:all .2s}
+.bb:hover{border-color:var(--a);color:var(--al)}
+.empty{text-align:center;padding:40px 20px;color:var(--m);font-size:13px}
+.dvdr{height:1px;background:var(--b);margin:14px 0}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);padding:11px 20px;border-radius:10px;font-size:12px;font-weight:700;z-index:999;display:none;white-space:nowrap;box-shadow:0 8px 25px rgba(0,0,0,.5)}
+.dbok{background:rgba(16,185,129,.1);color:var(--ok);padding:9px 14px;border-radius:8px;font-size:11px;font-family:monospace;text-align:center;margin-top:14px;border:1px solid rgba(16,185,129,.2)}
+.dberr{background:rgba(239,68,68,.1);color:var(--crit);padding:9px 14px;border-radius:8px;font-size:11px;font-family:monospace;text-align:center;margin-top:14px;border:1px solid rgba(239,68,68,.2)}
+.dbwt{color:var(--m);font-size:11px;font-family:monospace;text-align:center;margin-top:14px}
+/* DEPT CARD */
+.dc{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:14px;transition:all .2s}
+.dc:hover{border-color:var(--a);transform:translateY(-2px)}
+/* VERIFY */
+.unver{opacity:.6;border-left:3px solid var(--warn)!important}
+</style>
+
+<datalist id="dl-allergies"></datalist>
+<datalist id="dl-icd10"></datalist>
+<datalist id="dl-icd10-exam"></datalist>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:radial-gradient(ellipse at 20% 50%,rgba(37,99,235,.07),transparent 60%)">
+  <div style="width:100%;max-width:420px">
+    <div class="card" style="padding:32px">
+      <div style="text-align:center;margin-bottom:26px">
+        <div class="li" style="width:56px;height:56px;font-size:24px;margin:0 auto 14px">🏥</div>
+        <div style="font-size:26px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">SilkMed AI</div>
+        <div style="font-size:10px;color:var(--m);font-family:monospace;margin-top:4px">HOSPITAL INFORMATION SYSTEM v2.0</div>
+        <div style="display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+          <span style="font-size:10px;padding:3px 8px;border-radius:20px;background:rgba(37,99,235,.1);color:#60a5fa;border:1px solid rgba(37,99,235,.2)">🤖 NEWS2 AI</span>
+          <span style="font-size:10px;padding:3px 8px;border-radius:20px;background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.2)">🏥 Карта коек</span>
+          <span style="font-size:10px;padding:3px 8px;border-radius:20px;background:rgba(124,58,237,.1);color:#a78bfa;border:1px solid rgba(124,58,237,.2)">💊 Лекарства</span>
+        </div>
+      </div>
+      <label>Роль</label>
+      <select id="l-role" onchange="updHint()">
+        <option value="Doctor">👨‍⚕️ Врач</option>
+        <option value="Resuscitator">🏥 Реаниматолог</option>
+        <option value="Laboratory_Assistant">🔬 Лаборант</option>
+        <option value="Administrator">⚙️ Администратор</option>
+        <option value="Chief_Doctor">👔 Главный врач</option>
+        <option value="Nurse">🩺 Медсестра</option>
+      </select>
+      <div id="l-hint" style="font-size:11px;color:var(--m);margin-top:6px;padding:6px 10px;background:rgba(37,99,235,.05);border-radius:6px;font-family:monospace"></div>
+      <label>Имя пользователя</label>
+      <input id="l-user" placeholder="Введите ваше имя">
+      <label>Пароль</label>
+      <input id="l-pass" type="password" value="demo1234">
+      <button class="btn bp" style="width:100%;margin-top:16px;padding:13px" id="login-btn" onclick="login()">Войти в SilkMed AI</button>
+      <div id="db-status" class="dbwt">⏳ Подключение к базе данных...</div>
+      <div class="dvdr"></div>
+      <div style="text-align:center;font-size:12px;color:var(--m)">Нет аккаунта? <span style="color:#60a5fa;cursor:pointer;font-weight:700" onclick="showScr('reg')">Зарегистрироваться →</span></div>
+    </div>
+    <div style="text-align:center;margin-top:12px;font-size:10px;color:var(--m)">© 2025 SilkMed AI · Душанбе, Таджикистан</div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div id="reg-screen" style="display:none;align-items:flex-start;justify-content:center;min-height:100vh;padding:20px;padding-top:30px">
+  <div class="card" style="max-width:540px;width:100%;padding:28px">
+    <div style="font-size:17px;font-weight:700;margin-bottom:6px">👨‍⚕️ Регистрация сотрудника</div>
+    <div style="font-size:12px;color:var(--m);margin-bottom:18px">После регистрации аккаунт будет активирован Администратором</div>
+    <div class="g2">
+      <div><label>Фамилия *</label><input id="r-last" placeholder="Иванов"></div>
+      <div><label>Имя *</label><input id="r-first" placeholder="Алексей"></div>
+    </div>
+    <label>Отчество</label><input id="r-mid" placeholder="Петрович">
+    <div class="g2">
+      <div><label>Роль *</label>
+        <select id="r-role">
+          <option value="Doctor">Врач</option>
+          <option value="Resuscitator">Реаниматолог</option>
+          <option value="Surgeon">Хирург</option>
+          <option value="Cardiologist">Кардиолог</option>
+          <option value="Therapist">Терапевт</option>
+          <option value="Neurologist">Невролог</option>
+          <option value="Anesthesiologist">Анестезиолог</option>
+          <option value="Nurse">Медсестра</option>
+          <option value="Head_Nurse">Старшая медсестра</option>
+          <option value="Laboratory_Assistant">Лаборант</option>
+          <option value="Registrar">Регистратор</option>
+          <option value="Pharmacist">Фармацевт</option>
+          <option value="Administrator">Администратор</option>
+        </select>
+      </div>
+      <div><label>Специализация</label><input id="r-spec" placeholder="Кардиолог"></div>
+    </div>
+    <label>Отделение</label>
+    <select id="r-dept">
+      <option value="Кардиология">Кардиология</option>
+      <option value="Неврология">Неврология</option>
+      <option value="Хирургия">Хирургия</option>
+      <option value="ОИТ / Реанимация">ОИТ / Реанимация</option>
+      <option value="Терапия">Терапия</option>
+      <option value="Гастроэнтерология">Гастроэнтерология</option>
+      <option value="Лаборатория">Лаборатория</option>
+      <option value="Педиатрия">Педиатрия</option>
+    </select>
+    <div class="g2">
+      <div><label>Номер лицензии</label><input id="r-lic" placeholder="ЛВ-12345678"></div>
+      <div><label>Телефон</label><input id="r-phone" placeholder="+992 99 000 00 00"></div>
+    </div>
+    <label>Email *</label><input id="r-email" placeholder="doctor@hospital.tj">
+    <label>Пароль *</label><input id="r-pass" type="password" placeholder="Минимум 6 символов">
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn bg" style="flex:1" onclick="showScr('login')">← Назад</button>
+      <button class="btn bp" style="flex:2" id="reg-btn" onclick="registerDoctor()">✓ Зарегистрироваться</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <header>
+    <div class="logo">
+      <div class="li">🏥</div>
+      <span class="ln">SilkMed AI</span>
+      <span class="lv">v2.0</span>
+    </div>
+    <div class="hr">
+      <span class="bell" id="bell" onclick="showPage('alerts')">🔔<span class="bn" id="bell-n" style="display:none"></span></span>
+      <span class="rb" id="h-role"></span>
+      <span id="h-name" style="font-size:12px;font-weight:700;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      <button class="btn bg bsm" onclick="logout()">Выйти</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-dashboard" onclick="showPage('dashboard')">📊 Главная</div>
+    <div class="tab" id="tab-patients" onclick="showPage('patients')">👥 Пациенты</div>
+    <div class="tab" id="tab-beds" onclick="showPage('beds')">🛏 Карта коек</div>
+    <div class="tab" id="tab-alerts" onclick="showPage('alerts')">🚨 Алерты</div>
+    <div class="tab" id="tab-doctors" onclick="showPage('doctors')">👨‍⚕️ Врачи</div>
+    <div class="tab" id="tab-labs" onclick="showPage('labs')" style="display:none">🔬 Анализы</div>
+    <div class="tab" id="tab-manage" onclick="showPage('manage')" style="display:none">🏗 Управление</div>
+    <div class="tab" id="tab-audit" onclick="showPage('audit')" style="display:none">📋 Аудит</div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats" id="dash-stats"></div>
+      <div id="dash-alerts-strip"></div>
+      <div id="smart-insights" style="display:none"></div>
+      <div class="sec">Мои пациенты <button class="btn bp bsm" onclick="openModal('modal-patient')">+ Новый пациент</button></div>
+      <div class="pg" id="dash-patients"></div>
+    </div>
+
+    <!-- PATIENTS -->
+    <div class="page" id="page-patients">
+      <div class="sec">Все пациенты <button class="btn bp bsm" onclick="openModal('modal-patient')">+ Зарегистрировать</button></div>
+      <div class="pg" id="all-patients"></div>
+    </div>
+
+    <!-- BED MAP -->
+    <div class="page" id="page-beds">
+      <div class="sec">Карта коек больницы</div>
+      <div id="beds-content"></div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="page" id="page-alerts">
+      <div class="sec">Активные алерты</div>
+      <div id="alerts-list"></div>
+    </div>
+
+    <!-- DOCTORS -->
+    <div class="page" id="page-doctors">
+      <div class="sec">Медицинский персонал <button class="btn bp bsm" id="btn-add-doc" onclick="showScr('reg')" style="display:none">+ Добавить</button></div>
+      <div class="pg" id="doctors-list"></div>
+    </div>
+
+    <!-- LABS -->
+    <div class="page" id="page-labs">
+      <div class="sec">Назначенные анализы — ожидают результатов</div>
+      <div id="labs-pending"></div>
+    </div>
+
+    <!-- AUDIT -->
+    <div class="page" id="page-audit">
+      <div class="sec">Журнал аудита</div>
+      <div style="overflow-x:auto;background:var(--c);border:1px solid var(--b);border-radius:13px">
+        <table class="at">
+          <thead><tr><th>Время</th><th>Сотрудник</th><th>Пациент</th><th>Действие</th></tr></thead>
+          <tbody id="audit-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MANAGE -->
+    <div class="page" id="page-manage">
+      <div id="manage-content"></div>
+    </div>
+
+    <!-- PATIENT DETAIL -->
+    <div class="page" id="page-patient-detail">
+      <button class="bb" onclick="showPage('patients')">← Назад к пациентам</button>
+      <div id="patient-detail"></div>
+    </div>
+
+    <!-- EXAM DETAIL -->
+    <div class="page" id="page-exam-detail">
+      <button class="bb" id="exam-back">← Назад к карте</button>
+      <div id="exam-detail"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: ПАЦИЕНТ -->
+<div class="overlay" id="modal-patient">
+  <div class="modal">
+    <div class="mt">🧑‍⚕️ Регистрация пациента</div>
+    <div class="g2">
+      <div><label>Фамилия *</label><input id="p-last" placeholder="Смирнов"></div>
+      <div><label>Имя *</label><input id="p-first" placeholder="Андрей"></div>
+    </div>
+    <label>Отчество</label><input id="p-mid" placeholder="Иванович">
+    <div class="g2">
+      <div><label>Дата рождения *</label><input id="p-dob" type="date"></div>
+      <div><label>Пол *</label><select id="p-gender"><option value="М">Мужской</option><option value="Ж">Женский</option></select></div>
+    </div>
+    <div class="g2">
+      <div><label>ИНН / Национальный ID</label><input id="p-nid" placeholder="1234567890"></div>
+      <div><label>Группа крови</label>
+        <select id="p-blood"><option value="">Не известна</option><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select>
+      </div>
+    </div>
+    <div class="g2">
+      <div><label>Телефон</label><input id="p-phone" placeholder="+992 99 000 00 00"></div>
+      <div><label>Страховой номер</label><input id="p-ins" placeholder="POL-12345678"></div>
+    </div>
+    <label>Адрес</label><input id="p-addr" placeholder="г. Душанбе, ул. Рудаки, д. 1">
+    <div class="g2">
+      <div><label>Отделение *</label>
+        <select id="p-dept" onchange="onDeptChange(this.value)">
+          <option>Кардиология</option><option>Неврология</option><option>Хирургия</option>
+          <option>ОИТ / Реанимация</option><option>Терапия</option><option>Гастроэнтерология</option>
+          <option>Ортопедия</option><option>Педиатрия</option>
+        </select>
+      </div>
+      <div id="dept-free-hint" style="display:none;font-size:11px;padding:5px 10px;border-radius:6px;background:rgba(16,185,129,.08);color:#34d399;margin-top:5px;font-family:monospace"></div>
+      <div><label>Номер палаты *</label><input id="p-bed" placeholder="2А"></div>
+    </div>
+    <label>Лечащий врач *</label><select id="p-doctor"></select>
+    <label>Хронические заболевания</label><input id="p-chronic" placeholder="АГ, СД 2 типа (через запятую)">
+    <label>Аллергии</label><input id="p-allergy" placeholder="Пенициллин, аспирин (через запятую)" list="dl-allergies" autocomplete="off">
+    <label>Жалобы и предварительный диагноз</label>
+    <textarea id="p-anamnesis" rows="2" placeholder="Жалобы пациента, предварительный диагноз..."></textarea>
+    <div class="sbox" style="margin-top:14px">
+      <div class="sbt">📊 Витальные функции при поступлении</div>
+      <div class="g2">
+        <div><label>SpO₂ (%)</label><input id="v-spo2" type="number" placeholder="98"></div>
+        <div><label>ЧСС (уд/мин)</label><input id="v-pulse" type="number" placeholder="76"></div>
+      </div>
+      <div class="g2">
+        <div><label>АД систолическое</label><input id="v-sys" type="number" placeholder="120"></div>
+        <div><label>АД диастолическое</label><input id="v-dia" type="number" placeholder="80"></div>
+      </div>
+      <div class="g2">
+        <div><label>Температура (°C)</label><input id="v-temp" type="number" step="0.1" placeholder="36.6"></div>
+        <div><label>ЧД (вд/мин)</label><input id="v-rr" type="number" placeholder="16"></div>
+      </div>
+      <div class="g2">
+        <div><label>ШКГ (3-15)</label><input id="v-gcs" type="number" placeholder="15"></div>
+        <div><label>Вес (кг)</label><input id="v-weight" type="number" placeholder="70"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn bg" onclick="closeModal('modal-patient')">Отмена</button>
+      <button class="btn bp" id="save-pat-btn" onclick="savePatient()">💾 Зарегистрировать пациента</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ОСМОТР -->
+<div class="overlay" id="modal-exam">
+  <div class="modal">
+    <div class="mt">📋 Новый осмотр</div>
+    <input type="hidden" id="ep-id">
+    <div class="sbox">
+      <div class="sbt">📊 Витальные функции</div>
+      <div class="g2">
+        <div><label>SpO₂ (%)</label><input id="e-spo2" type="number" placeholder="98"></div>
+        <div><label>ЧСС (уд/мин)</label><input id="e-pulse" type="number" placeholder="76"></div>
+      </div>
+      <div class="g2">
+        <div><label>АД систол.</label><input id="e-sys" type="number" placeholder="120"></div>
+        <div><label>АД диастол.</label><input id="e-dia" type="number" placeholder="80"></div>
+      </div>
+      <div class="g2">
+        <div><label>Температура</label><input id="e-temp" type="number" step="0.1" placeholder="36.6"></div>
+        <div><label>ЧД</label><input id="e-rr" type="number" placeholder="16"></div>
+      </div>
+      <div class="g2">
+        <div><label>ШКГ (3-15)</label><input id="e-gcs" type="number" placeholder="15"></div>
+        <div><label>Вес (кг)</label><input id="e-weight" type="number" placeholder="70"></div>
+      </div>
+    </div>
+    <div class="sbox">
+      <div class="sbt">🫀 Статус систем</div>
+      <div class="g2">
+        <div><label>ССС</label><input id="e-cv" placeholder="Норма"></div>
+        <div><label>Дыхательная</label><input id="e-resp" placeholder="Норма"></div>
+      </div>
+      <div class="g2">
+        <div><label>ЖКТ</label><input id="e-gi" placeholder="Норма"></div>
+        <div><label>Неврологическая</label><input id="e-neuro" placeholder="Норма"></div>
+      </div>
+    </div>
+    <label>Жалобы</label><textarea id="e-comp" rows="2" placeholder="Жалобы пациента..."></textarea>
+    <label>Объективно</label><textarea id="e-obj" rows="2" placeholder="Данные осмотра..."></textarea>
+    <label>Диагноз</label><input id="e-diag" placeholder="Клинический диагноз">
+    <label>Код МКБ-10</label><input id="e-icd" placeholder="I10, I21.0..." list="dl-icd10" autocomplete="off">
+    <label>Назначения и лечение</label><textarea id="e-treat" rows="2" placeholder="Медикаменты, процедуры..."></textarea>
+    <div class="mf">
+      <button class="btn bg" onclick="closeModal('modal-exam')">Отмена</button>
+      <button class="btn bp" id="save-exam-btn" onclick="saveExam()">💾 Сохранить осмотр</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: АНАЛИЗЫ -->
+<div class="overlay" id="modal-labs">
+  <div class="modal">
+    <div class="mt">🔬 Назначение анализов</div>
+    <input type="hidden" id="lp-id">
+    <div style="font-size:12px;color:var(--m);margin-bottom:14px;padding:10px;background:rgba(37,99,235,.05);border-radius:8px">Выберите необходимые исследования</div>
+    <div id="lab-cats"></div>
+    <label>Срочность</label>
+    <select id="lab-urg">
+      <option value="routine">📅 Плановая</option>
+      <option value="urgent">🔶 Срочная (до 4 часов)</option>
+      <option value="stat">⚡ Экстренная (немедленно)</option>
+    </select>
+    <label>Примечания</label>
+    <textarea id="lab-notes" rows="2" placeholder="Дополнительные указания..."></textarea>
+    <div class="mf">
+      <button class="btn bg" onclick="closeModal('modal-labs')">Отмена</button>
+      <button class="btn bw" id="save-labs-btn" onclick="saveLabs()">📋 Назначить анализы</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ЛЕКАРСТВО -->
+<div class="overlay" id="modal-med">
+  <div class="modal">
+    <div class="mt">💊 Назначить лекарство</div>
+    <input type="hidden" id="mp-id">
+    <label>Название препарата *</label><input id="m-name" placeholder="Каптоприл">
+    <div class="g2">
+      <div><label>Дозировка *</label><input id="m-dose" placeholder="25 мг"></div>
+      <div><label>Путь введения *</label>
+        <select id="m-route">
+          <option value="Перорально">Перорально</option>
+          <option value="Капельница в/в">Капельница в/в</option>
+          <option value="Инъекция в/м">Инъекция в/м</option>
+          <option value="Инъекция п/к">Инъекция п/к</option>
+          <option value="Сублингвально">Сублингвально</option>
+          <option value="Ингаляционно">Ингаляционно</option>
+          <option value="Местно">Местно</option>
+        </select>
+      </div>
+    </div>
+    <label>Расписание приёма *</label><input id="m-sched" placeholder="Каждые 8 часов / 1 раз утром">
+    <label>Примечания</label><textarea id="m-notes" rows="2" placeholder="Дополнительные указания..."></textarea>
+    <div class="mf">
+      <button class="btn bg" onclick="closeModal('modal-med')">Отмена</button>
+      <button class="btn bs" id="save-med-btn" onclick="saveMed()">💊 Назначить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: РЕЗУЛЬТАТ АНАЛИЗА -->
+<div class="overlay" id="modal-result">
+  <div class="modal">
+    <div class="mt">📊 Ввод результата анализа</div>
+    <input type="hidden" id="ro-id">
+    <input type="hidden" id="rp-id">
+    <div id="r-test-name" style="font-size:14px;font-weight:700;color:#60a5fa;margin-bottom:16px;padding:10px;background:rgba(37,99,235,.08);border-radius:8px"></div>
+    <label>Результат</label><input id="r-val" placeholder="Значение или описание">
+    <div class="g2">
+      <div><label>Единица измерения</label><input id="r-unit" placeholder="г/л, мкмоль/л..."></div>
+      <div><label>Норма</label><input id="r-range" placeholder="3.5–5.0"></div>
+    </div>
+    <label>Заключение</label><textarea id="r-concl" rows="3" placeholder="Клиническое заключение по результатам..."></textarea>
+    <div style="margin-top:12px;padding:12px;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.1);border-radius:8px">
+      <label style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:12px;color:var(--t)">
+        <input type="checkbox" id="r-abn" style="width:auto"> ⚠️ Результат отклоняется от нормы
+      </label>
+      <select id="r-abn-type" style="margin-top:9px;display:none">
+        <option value="high">↑ Выше нормы</option>
+        <option value="low">↓ Ниже нормы</option>
+        <option value="critical">🔴 Критическое отклонение</option>
+      </select>
+    </div>
+    <div class="mf">
+      <button class="btn bg" onclick="closeModal('modal-result')">Отмена</button>
+      <button class="btn bp" id="save-result-btn" onclick="saveResult()">💾 Сохранить результат</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ЭКСТРЕННЫЙ ДОСТУП -->
+<div class="overlay" id="modal-emergency">
+  <div class="modal" style="border-color:rgba(239,68,68,.3);max-width:440px">
+    <div class="mt" style="color:var(--crit)">⚠️ Экстренный доступ</div>
+    <p style="font-size:13px;color:var(--m);margin-bottom:14px;line-height:1.7">Пациент закреплён за другим врачом. Экстренный доступ будет зафиксирован в журнале аудита.</p>
+    <label>Причина экстренного доступа * (минимум 15 символов)</label>
+    <textarea id="em-reason" rows="3" placeholder="Укажите клиническое обоснование..."></textarea>
+    <div class="mf">
+      <button class="btn bg" onclick="closeModal('modal-emergency')">Отмена</button>
+      <button class="btn bd" onclick="confirmEmergency()">Подтвердить доступ</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL: НОВОЕ ОТДЕЛЕНИЕ -->
+<div class="overlay" id="modal-dept">
+  <div class="modal" style="max-width:460px">
+    <div class="mt">🏥 Добавить отделение</div>
+    <input type="hidden" id="dept-edit-id">
+    <label>Название на русском *</label>
+    <input id="dept-name-ru" placeholder="Кардиология">
+    <label>Название на таджикском</label>
+    <input id="dept-name-tg" placeholder="Кардиология">
+    <label>Код отделения * (латиница, без пробелов)</label>
+    <input id="dept-code" placeholder="CARD" style="text-transform:uppercase">
+    <div class="mf">
+      <button class="btn bg" onclick="closeModal('modal-dept')">Отмена</button>
+      <button class="btn bp" id="save-dept-btn" onclick="saveDept()">💾 Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: НОВАЯ КОЙКА -->
+<div class="overlay" id="modal-bed">
+  <div class="modal" style="max-width:460px">
+    <div class="mt">🛏 Добавить койки</div>
+    <input type="hidden" id="bed-dept-id">
+    <label>Отделение</label>
+    <div id="bed-dept-name" style="font-size:14px;font-weight:700;color:#60a5fa;padding:8px 12px;background:rgba(37,99,235,.08);border-radius:8px;margin-top:4px"></div>
+    <label>Палата (номер) *</label>
+    <input id="bed-ward" placeholder="2" type="number" min="1">
+    <label>Комната (номер) *</label>
+    <input id="bed-room" placeholder="201">
+    <label>Количество коек для добавления *</label>
+    <input id="bed-count" type="number" value="1" min="1" max="20">
+    <div style="background:rgba(37,99,235,.05);border:1px solid rgba(37,99,235,.1);border-radius:8px;padding:12px;margin-top:12px">
+      <div style="font-size:11px;color:var(--m);margin-bottom:6px">Коды коек будут сгенерированы автоматически:</div>
+      <div id="bed-preview" style="font-size:12px;font-family:monospace;color:#60a5fa"></div>
+    </div>
+    <div class="mf">
+      <button class="btn bg" onclick="closeModal('modal-bed')">Отмена</button>
+      <button class="btn bp" id="save-bed-btn" onclick="saveBeds()">💾 Добавить койки</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: НОВАЯ БОЛЬНИЦА / КОРПУС -->
+<div class="overlay" id="modal-hospital">
+  <div class="modal" style="max-width:480px">
+    <div class="mt">🏗 Добавить корпус / больницу</div>
+    <div style="font-size:12px;color:var(--m);margin-bottom:14px">Добавьте новый корпус или филиал с отделениями и койками</div>
+    <label>Название корпуса / больницы *</label>
+    <input id="hosp-name" placeholder="Корпус №2 / Городская больница №3">
+    <label>Тип</label>
+    <select id="hosp-type">
+      <option value="Корпус">Корпус</option>
+      <option value="Филиал">Филиал</option>
+      <option value="Поликлиника">Поликлиника</option>
+      <option value="Центр">Центр</option>
+    </select>
+    <label>Добавить отделения (через запятую)</label>
+    <textarea id="hosp-depts" rows="3" placeholder="Кардиология, Неврология, Хирургия, Терапия"></textarea>
+    <label>Количество коек в каждом отделении</label>
+    <input id="hosp-beds" type="number" value="6" min="1" max="50">
+    <div class="mf">
+      <button class="btn bg" onclick="closeModal('modal-hospital')">Отмена</button>
+      <button class="btn bp" id="save-hosp-btn" onclick="saveHospital()">🏗 Создать структуру</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══ SUPABASE ═══
+const SB='https://xqcfpaehlakvdnmyentc.supabase.co/rest/v1';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxY2ZwYWVobGFrdmRubXllbnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2ODA4NzAsImV4cCI6MjA5NzI1Njg3MH0.FfuTj95dXfMSXDc5ua8DMKn1uW75XUng39rCGM3b578';
+const H={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+const get=async(t,q='')=>{try{const r=await fetch(`${SB}/${t}?${q}`,{headers:H});return r.ok?await r.json():[]}catch{return[]}};
+const post=async(t,b)=>{try{const r=await fetch(`${SB}/${t}`,{method:'POST',headers:H,body:JSON.stringify(b)});return r.ok?await r.json():null}catch{return null}};
+const patch=async(t,b,q)=>{try{const r=await fetch(`${SB}/${t}?${q}`,{method:'PATCH',headers:H,body:JSON.stringify(b)});return r.ok}catch{return false}};
+
+// ═══ STATE ═══
+let doctor=null,patients=[],alerts=[],doctors=[],departments=[],beds=[],pendingId=null;
+
+// ═══ LAB CATS ═══
+const LAB_CATS=[
+  {id:'blood',ico:'🩸',name:'Общий анализ крови',tests:['Гемоглобин','Эритроциты','Лейкоциты','Тромбоциты','СОЭ','Нейтрофилы','Лимфоциты']},
+  {id:'urine',ico:'🟡',name:'Общий анализ мочи',tests:['pH мочи','Белок','Глюкоза','Лейкоциты в моче','Эритроциты в моче']},
+  {id:'biochemistry',ico:'🧪',name:'Биохимия крови',tests:['Глюкоза','АЛТ','АСТ','Билирубин','Креатинин','Мочевина','Тропонин I','Тропонин T','Прокальцитонин','СРБ','D-димер','Фибриноген','Лактат','Холестерин','ЛПНП','Натрий','Калий','Кальций']},
+  {id:'immunoglobulin',ico:'🛡️',name:'Иммуноглобулины',tests:['IgA','IgG','IgM','IgE','Ревматоидный фактор','HBsAg','Антитела к гепатиту C']},
+  {id:'hormones',ico:'⚗️',name:'Гормоны',tests:['ТТГ','Т3 свободный','Т4 свободный','Кортизол','Инсулин','HbA1c']},
+  {id:'stool',ico:'🟤',name:'Анализ кала',tests:['Копрограмма','Кал на скрытую кровь','Дисбактериоз кишечника']},
+  {id:'ecg',ico:'💓',name:'ЭКГ',tests:['ЭКГ 12 отведений','Холтер-мониторинг 24ч']},
+  {id:'xray',ico:'🦴',name:'Рентген',tests:['Рентген грудной клетки','Рентген позвоночника','Флюорография']},
+  {id:'ultrasound',ico:'📡',name:'УЗИ',tests:['УЗИ брюшной полости','ЭхоКГ','УЗДГ сосудов','УЗИ почек']},
+  {id:'mri',ico:'🔄',name:'МРТ / КТ',tests:['МРТ головного мозга','МРТ позвоночника','КТ грудной клетки']},
+  {id:'fgds',ico:'🔭',name:'Эндоскопия',tests:['ФГДС','Колоноскопия','Бронхоскопия']},
+];
+
+// ═══ NEWS2 ═══
+function calcNEWS2(v){
+  let s=0;
+  const {spo2,rr,pulse:hr,temp,sys:bp_sys}=v;
+  if(+spo2<92)s+=3;else if(+spo2<=93)s+=2;else if(+spo2<=95)s+=1;
+  if(+rr>=25||+rr<=8)s+=3;else if(+rr>=21)s+=2;else if(+rr<=11)s+=1;
+  if(+hr>=131||+hr<=40)s+=3;else if(+hr>=111)s+=2;else if(+hr>=91)s+=1;
+  if(+bp_sys<=90||+bp_sys>=220)s+=3;else if(+bp_sys<=100)s+=2;else if(+bp_sys<=110)s+=1;
+  if(+temp<=35.0)s+=3;else if(+temp>=39.1)s+=2;else if(+temp>=38.1)s+=1;else if(+temp<=36.0)s+=1;
+  return{score:s,risk:s>=7?'RED_CRITICAL':s>=5?'ORANGE_MEDIUM':'GREEN_LOW',
+    action:s>=7?'Немедленный вызов реанимационной бригады!':s>=5?'Усиленный мониторинг каждые 30 минут':'Плановый мониторинг каждые 4 часа'};
+}
+function news2Badge(n){
+  if(!n||n.score===undefined) return '';
+  const cls=n.risk==='RED_CRITICAL'?'n2-red':n.risk==='ORANGE_MEDIUM'?'n2-orange':'n2-green';
+  const ico=n.risk==='RED_CRITICAL'?'🔴':n.risk==='ORANGE_MEDIUM'?'🟠':'🟢';
+  return `<span class="n2r ${cls}">${ico} NEWS2: ${n.score} — ${n.risk==='RED_CRITICAL'?'КРИТИЧЕСКИЙ':n.risk==='ORANGE_MEDIUM'?'СРЕДНИЙ':'НИЗКИЙ'}</span>`;
+}
+
+// ═══ VITALS ═══
+function analyzeV(v){
+  if(!v)return[];const a=[];
+  if(+v.spo2<90)a.push({sev:5,flag:'CRITICAL_SPO2',msg:`SpO₂=${v.spo2}% — критическая гипоксемия!`});
+  else if(+v.spo2<94)a.push({sev:3,flag:'LOW_SPO2',msg:`SpO₂=${v.spo2}% — снижена`});
+  if(+v.pulse<40)a.push({sev:5,flag:'BRADYCARDIA',msg:`ЧСС=${v.pulse} уд/мин`});
+  else if(+v.pulse>140)a.push({sev:4,flag:'TACHYCARDIA',msg:`ЧСС=${v.pulse} уд/мин`});
+  if(+v.sys<80)a.push({sev:5,flag:'HYPOTENSION',msg:`АД ${v.sys}/${v.dia} — угроза шока!`});
+  else if(+v.sys>180)a.push({sev:4,flag:'HYPERT_CRISIS',msg:`АД ${v.sys}/${v.dia} — криз`});
+  if(+v.temp>39.5)a.push({sev:3,flag:'HIGH_FEVER',msg:`Темп. ${v.temp}°C`});
+  if(v.gcs&&+v.gcs<=8)a.push({sev:5,flag:'CRITICAL_GCS',msg:`ШКГ=${v.gcs}/15 — нарушение сознания`});
+  return a.sort((x,y)=>y.sev-x.sev);
+}
+function pCls(k,val){
+  val=+val;
+  if(k==='spo2')return val<90?'pcr':val<94?'pw':'pok';
+  if(k==='sys')return(val<80||val>180)?'pcr':val>160?'pw':'pok';
+  if(k==='pulse')return(val<40||val>140)?'pcr':val>100?'pw':'pok';
+  if(k==='temp')return val>39.5?'pcr':val>38.5?'pw':'pok';
+  return 'pok';
+}
+function vCls(k,val){
+  val=+val;
+  if(k==='spo2')return val<90?'vcr':val<94?'vw':'vok';
+  if(k==='sys')return(val<80||val>180)?'vcr':val>160?'vw':'vok';
+  if(k==='pulse')return(val<40||val>140)?'vcr':val>100?'vw':'vok';
+  if(k==='temp')return val>39.5?'vcr':val>38.5?'vw':'vok';
+  if(k==='gcs')return val<=8?'vcr':val<=12?'vw':'vok';
+  return 'vok';
+}
+function suggestTests(v){
+  const s=new Set(),fl=analyzeV(v).map(a=>a.flag);
+  if(fl.some(f=>f.includes('SPO2'))){s.add('КЩС (газы артериальной крови)');s.add('D-димер (ТЭЛА)');s.add('Рентген грудной клетки');}
+  if(fl.some(f=>f.includes('CARDIA'))){s.add('ЭКГ 12 отведений');s.add('Тропонин I/T');s.add('Электролиты K⁺, Na⁺');}
+  if(fl.includes('HYPOTENSION')){s.add('Лактат крови');s.add('Прокальцитонин');s.add('Коагулограмма');}
+  if(fl.includes('HYPERT_CRISIS')){s.add('ЭКГ');s.add('Тропонин');s.add('Креатинин, Мочевина');}
+  if(fl.includes('HIGH_FEVER')){s.add('ОАК с лейкоформулой');s.add('СРБ, Прокальцитонин');s.add('Посев крови × 2');}
+  if(fl.includes('CRITICAL_GCS')){s.add('КТ/МРТ головного мозга');s.add('Глюкоза');}
+  if(!s.size)s.add('Отклонений не выявлено — плановый мониторинг');
+  return[...s];
+}
+
+// ═══ RBAC ═══
+const ADMIN_ROLES=['Administrator','Chief_Doctor','Deputy_Chief_Doctor','Audit_User'];
+const EMERGENCY_ROLES=['Resuscitator','Anesthesiologist','Surgeon'];
+const LAB_ROLES=['Laboratory_Assistant'];
+
+function canAccess(p){
+  if(!doctor)return'denied';
+  if(ADMIN_ROLES.includes(doctor.role))return'full';
+  if(LAB_ROLES.includes(doctor.role))return'full';
+  if(EMERGENCY_ROLES.includes(doctor.role))return'emergency';
+  return p.doctor_id===doctor.id?'full':'denied';
+}
+function roleLabel(r){
+  const m={Administrator:'Администратор',Chief_Doctor:'Главный врач',Deputy_Chief_Doctor:'Зам.главврача',Head_of_Department:'Зав.отделением',Doctor:'Врач',Resuscitator:'Реаниматолог',Surgeon:'Хирург',Cardiologist:'Кардиолог',Therapist:'Терапевт',Neurologist:'Невролог',Anesthesiologist:'Анестезиолог',Nurse:'Медсестра',Head_Nurse:'Ст.медсестра',Laboratory_Assistant:'Лаборант',Registrar:'Регистратор',Statistician:'Статистик',Pharmacist:'Фармацевт',Audit_User:'Аудитор'};
+  return m[r]||r;
+}
+function roleCls(r){
+  if(ADMIN_ROLES.includes(r))return'rba';
+  if(EMERGENCY_ROLES.includes(r))return'rbi';
+  if(LAB_ROLES.includes(r))return'rbl';
+  return'rbp';
+}
+
+// ═══ DATA ═══
+async function loadAlerts(){
+  alerts=await get('alerts','is_active=eq.true&order=created_at.desc');
+  const n=alerts.length;
+  document.getElementById('bell-n').style.display=n?'block':'none';
+  document.getElementById('bell-n').textContent=n||'';
+}
+async function loadAll(){
+  [patients,doctors,departments,beds]=await Promise.all([
+    get('patients','is_hospitalized=eq.true&order=created_at.desc'),
+    get('doctors','order=name.asc'),
+    get('departments','order=name_ru.asc'),
+    get('hospital_beds','order=bed_code.asc'),
+  ]);
+  await generateAlerts();
+}
+async function generateAlerts(){
+  for(const p of patients){
+    const v=p.vitals||{};
+    const hrs=(Date.now()-new Date(p.admission).getTime())/3600000;
+    if(hrs>=6&&!p.lab_received){
+      const ex=await get('alerts',`patient_id=eq.${p.id}&type=eq.missing_labs&is_active=eq.true&limit=1`);
+      if(!ex.length)await post('alerts',{patient_id:p.id,doctor_id:doctor.id,type:'missing_labs',severity:4,
+        title:'⏱ Красная линия: анализы',message:`${p.name.split(' ').slice(0,2).join(' ')} — ${Math.round(hrs)}ч без лабораторных данных`,is_active:true});
+    }
+    const n=calcNEWS2({spo2:v.spo2||99,rr:v.rr||16,pulse:v.pulse||80,temp:v.temp||36.6,sys:v.sys||120});
+    if(n.score>=5){
+      const ex=await get('alerts',`patient_id=eq.${p.id}&type=eq.news2_alert&is_active=eq.true&limit=1`);
+      if(!ex.length)await post('alerts',{patient_id:p.id,doctor_id:doctor.id,type:'news2_alert',severity:n.score>=7?5:3,
+        title:`🤖 NEWS2=${n.score} — ${n.risk==='RED_CRITICAL'?'КРИТИЧЕСКИЙ':'СРЕДНИЙ'}`,
+        message:`${p.name.split(' ').slice(0,2).join(' ')}: ${n.action}`,is_active:true});
+    }
+  }
+  await loadAlerts();
+}
+
+// ═══ AUTH ═══
+function fillDemo(email, pass){
+  document.getElementById('l-email').value=email;
+  document.getElementById('l-pass').value=pass;
+  const err=document.getElementById('l-error');if(err)err.style.display='none';
+}
+function showLoginError(msg){
+  const el=document.getElementById('l-error');
+  if(el){el.textContent=msg;el.style.display='block';}
+}
+function generateToken(userId,role){
+  return btoa(JSON.stringify({id:userId,role,iat:Date.now()}));
+}
+
+async function login(){
+  const email=(document.getElementById('l-email')?.value||'').trim();
+  const pass=document.getElementById('l-pass').value;
+  const btn=document.getElementById('login-btn');
+  const errEl=document.getElementById('l-error');
+  if(errEl)errEl.style.display='none';
+  if(!email||!pass){showLoginError('Введите email и пароль');return;}
+  btn.disabled=true;btn.textContent='Авторизация...';
+
+  // Поиск по email (из authController.js)
+  const docs=await get('doctors','email=eq.'+encodeURIComponent(email)+'&limit=1');
+  if(!docs.length){
+    showLoginError('Аккаунт не найден. Проверьте email или зарегистрируйтесь.');
+    btn.disabled=false;btn.textContent='Войти в SilkMed AI';return;
+  }
+  const doc=docs[0];
+
+  // Проверка верификации (authController.js: if (!user.is_verified))
+  if(doc.is_verified===false){
+    showLoginError('Аккаунт ожидает подтверждения Администратором клиники.');
+    btn.disabled=false;btn.textContent='Войти в SilkMed AI';return;
+  }
+
+  // Проверка пароля
+  if(doc.password_hash!=='demo1234'&&doc.password_hash!=='demo'&&doc.password_hash!==pass){
+    showLoginError('Неверный пароль. Для демо используйте: demo1234');
+    btn.disabled=false;btn.textContent='Войти в SilkMed AI';return;
+  }
+
+  // Маппинг ролей
+  const roleMap={physician:'Doctor',intensivist:'Resuscitator',laborant:'Laboratory_Assistant',admin:'Administrator'};
+  const displayRole=roleMap[doc.role]||'Doctor';
+  doctor={...doc,role:displayRole};
+
+  // Сессионный токен (имитация JWT)
+  sessionStorage.setItem('sm_token',generateToken(doc.id,displayRole));
+  sessionStorage.setItem('sm_uid',doc.id);
+
+  // Аудит входа с IP (authController.js: INSERT INTO global_audit_logs)
+  await post('audit_log',{doctor_id:doctor.id,action:'USER_LOGIN',
+    ip_address:navigator.userAgent.substring(0,45),resource_path:'/auth/login'});
+
+  await loadAll();
+  await loadSuggestions(); // из registration.js: smart suggestions
+
+  showScr('app');
+  document.getElementById('h-name').textContent=doctor.short_name;
+  document.getElementById('h-role').textContent=roleLabel(displayRole);
+  document.getElementById('h-role').className='rb '+roleCls(displayRole);
+  document.getElementById('tab-audit').style.display=(ADMIN_ROLES.includes(displayRole)||displayRole==='Resuscitator')?'':'none';
+  document.getElementById('tab-labs').style.display=LAB_ROLES.includes(displayRole)?'':'none';
+  document.getElementById('btn-add-doc').style.display=ADMIN_ROLES.includes(displayRole)?'':'none';
+  document.getElementById('tab-manage').style.display=ADMIN_ROLES.includes(displayRole)?'':'none';
+  renderDashboard();
+  btn.disabled=false;btn.textContent='Войти в SilkMed AI';
+}
+
+async function registerDoctor(){
+  const last=document.getElementById('r-last').value.trim();
+  const first=document.getElementById('r-first').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  const pass=document.getElementById('r-pass').value;
+  if(!last||!first||!email||pass.length<6){toast('Заполните все обязательные поля','warn');return;}
+  const btn=document.getElementById('reg-btn');btn.disabled=true;
+  const mid=document.getElementById('r-mid').value.trim();
+  const name=`${last} ${first}${mid?' '+mid:''}`;
+  const short=`${last} ${first[0]}.${mid?mid[0]+'.':''}`;
+  const roleMap={Doctor:'physician',Resuscitator:'intensivist',Surgeon:'intensivist',Laboratory_Assistant:'laborant',Administrator:'admin',Nurse:'physician'};
+  const dbRole=roleMap[document.getElementById('r-role').value]||'physician';
+  const res=await post('doctors',{name,short_name:short,role:dbRole,
+    department:document.getElementById('r-dept').value,
+    specialty:document.getElementById('r-spec').value,
+    license_number:document.getElementById('r-lic').value||`ЛВ-${Date.now()}`,
+    phone:document.getElementById('r-phone').value,email,
+    password_hash:'demo',is_active:true,is_verified:false});
+  if(res){toast('Аккаунт создан! Ожидайте активации администратором','ok');showScr('login');}
+  else toast('Ошибка. Возможно email уже используется','crit');
+  btn.disabled=false;
+}
+async function logout(){
+  await post('audit_log',{doctor_id:doctor.id,action:'USER_LOGOUT',resource_path:'/auth/logout'});
+  sessionStorage.removeItem('sm_token');
+  sessionStorage.removeItem('sm_uid');
+  suggestions={allergies:[],icd10:[],freeDepts:[]};
+  doctor=null;patients=[];alerts=[];doctors=[];departments=[];beds=[];
+  showScr('login');
+}
+
+// ═══ SAVE PATIENT ═══
+async function savePatient(){
+  const last=document.getElementById('p-last').value.trim();
+  const first=document.getElementById('p-first').value.trim();
+  const dob=document.getElementById('p-dob').value;
+  const bed=document.getElementById('p-bed').value.trim();
+  if(!last||!first||!dob||!bed){toast('Заполните обязательные поля','warn');return;}
+  const btn=document.getElementById('save-pat-btn');btn.disabled=true;
+  const mid=document.getElementById('p-mid').value.trim();
+  const name=`${last} ${first}${mid?' '+mid:''}`;
+  const age=Math.floor((Date.now()-new Date(dob))/(365.25*24*3600*1000));
+  const vitals={spo2:+document.getElementById('v-spo2').value||98,pulse:+document.getElementById('v-pulse').value||76,sys:+document.getElementById('v-sys').value||120,dia:+document.getElementById('v-dia').value||80,temp:+document.getElementById('v-temp').value||36.6,rr:+document.getElementById('v-rr').value||16,gcs:+document.getElementById('v-gcs').value||15,weight_kg:+document.getElementById('v-weight').value||70};
+  const chronic=document.getElementById('p-chronic').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const allergy=document.getElementById('p-allergy').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const n=calcNEWS2({spo2:vitals.spo2,rr:vitals.rr,pulse:vitals.pulse,temp:vitals.temp,sys:vitals.sys});
+  const res=await post('patients',{name,age,gender:document.getElementById('p-gender').value,date_of_birth:dob,
+    national_id:document.getElementById('p-nid').value||null,
+    department:document.getElementById('p-dept').value,bed,
+    doctor_id:document.getElementById('p-doctor').value||doctor.id,
+    blood_type:document.getElementById('p-blood').value||null,
+    phone:document.getElementById('p-phone').value||null,
+    address:document.getElementById('p-addr').value||null,
+    insurance_number:document.getElementById('p-ins').value||null,
+    anamnesis:document.getElementById('p-anamnesis').value||null,
+    conditions:chronic,chronic_conditions:chronic,allergies:allergy,
+    vitals:{...vitals,news2_score:n.score,news2_risk:n.risk},
+    systems:{cardiovascular:'Норма',gastrointestinal:'Норма',neurological:'Норма',respiratory:'Норма',musculoskeletal:'Норма',urogenital:'Норма',skin:'Норма'},
+    lab_ordered:false,lab_received:false,is_hospitalized:true,admission:new Date().toISOString()});
+  if(res){
+    const pid=Array.isArray(res)?res[0]?.id:res.id;
+    if(pid){
+      await post('examinations',{patient_id:pid,doctor_id:doctor.id,spo2:vitals.spo2,pulse:vitals.pulse,bp_systolic:vitals.sys,bp_diastolic:vitals.dia,temperature:vitals.temp,resp_rate:vitals.rr,gcs_score:vitals.gcs,weight_kg:vitals.weight_kg,complaints:document.getElementById('p-anamnesis').value,diagnosis:chronic.join(', ')||null,news2_score:n.score,news2_risk:n.risk,is_primary:true});
+      await post('news2_scores',{patient_id:pid,doctor_id:doctor.id,spo2:vitals.spo2,rr:vitals.rr,hr:vitals.pulse,temp:vitals.temp,bp_sys:vitals.sys,score:n.score,risk_level:n.risk,action_required:n.action});
+    }
+    toast('Пациент зарегистрирован','ok');closeModal('modal-patient');
+    clrF(['p-last','p-first','p-mid','p-dob','p-nid','p-phone','p-ins','p-addr','p-bed','p-anamnesis','p-chronic','p-allergy','v-spo2','v-pulse','v-sys','v-dia','v-temp','v-rr','v-gcs','v-weight']);
+    patients=await get('patients','is_hospitalized=eq.true&order=created_at.desc');
+    await generateAlerts();renderDashboard();
+  }else toast('Ошибка сохранения','crit');
+  btn.disabled=false;
+}
+
+// ═══ SAVE EXAM ═══
+async function saveExam(){
+  const pid=document.getElementById('ep-id').value;
+  const btn=document.getElementById('save-exam-btn');btn.disabled=true;
+  const spo2=+document.getElementById('e-spo2').value||null;
+  const pulse=+document.getElementById('e-pulse').value||null;
+  const sys=+document.getElementById('e-sys').value||null;
+  const temp=+document.getElementById('e-temp').value||null;
+  const rr=+document.getElementById('e-rr').value||null;
+  const n=calcNEWS2({spo2:spo2||99,rr:rr||16,pulse:pulse||80,temp:temp||36.6,sys:sys||120});
+  const res=await post('examinations',{patient_id:pid,doctor_id:doctor.id,
+    spo2,pulse,bp_systolic:sys,bp_diastolic:+document.getElementById('e-dia').value||null,
+    temperature:temp,resp_rate:rr,gcs_score:+document.getElementById('e-gcs').value||null,
+    weight_kg:+document.getElementById('e-weight').value||null,
+    cardiovascular:document.getElementById('e-cv').value||'Норма',
+    gastrointestinal:document.getElementById('e-gi').value||'Норма',
+    neurological:document.getElementById('e-neuro').value||'Норма',
+    respiratory:document.getElementById('e-resp').value||'Норма',
+    complaints:document.getElementById('e-comp').value||null,
+    objective_data:document.getElementById('e-obj').value||null,
+    diagnosis:document.getElementById('e-diag').value||null,
+    icd10_code:document.getElementById('e-icd').value||null,
+    treatment:document.getElementById('e-treat').value||null,
+    news2_score:n.score,news2_risk:n.risk});
+  if(res){
+    if(spo2&&pulse&&sys)await post('news2_scores',{patient_id:pid,doctor_id:doctor.id,spo2,rr,hr:pulse,temp,bp_sys:sys,score:n.score,risk_level:n.risk,action_required:n.action});
+    toast('Осмотр сохранён','ok');closeModal('modal-exam');
+    clrF(['e-spo2','e-pulse','e-sys','e-dia','e-temp','e-rr','e-gcs','e-weight','e-cv','e-gi','e-neuro','e-resp','e-comp','e-obj','e-diag','e-icd','e-treat']);
+    await renderPatientDetail(pid);
+  }else toast('Ошибка','crit');
+  btn.disabled=false;
+}
+
+// ═══ MEDICATIONS ═══
+function openMedModal(pid){document.getElementById('mp-id').value=pid;openModal('modal-med');}
+async function saveMed(){
+  const pid=document.getElementById('mp-id').value;
+  const name=document.getElementById('m-name').value.trim();
+  const dose=document.getElementById('m-dose').value.trim();
+  const route=document.getElementById('m-route').value;
+  const sched=document.getElementById('m-sched').value.trim();
+  if(!name||!dose||!sched){toast('Заполните обязательные поля','warn');return;}
+  const btn=document.getElementById('save-med-btn');btn.disabled=true;
+  const res=await post('medical_orders',{patient_id:pid,prescribed_by:doctor.id,medication_name:name,dosage:dose,route,schedule:sched,notes:document.getElementById('m-notes').value||null,status:'Pending'});
+  if(res){toast('Лекарство назначено','ok');closeModal('modal-med');clrF(['m-name','m-dose','m-sched','m-notes']);await renderPatientDetail(pid);}
+  else toast('Ошибка','crit');
+  btn.disabled=false;
+}
+
+// ═══ LABS ═══
+function openLabModal(pid){
+  document.getElementById('lp-id').value=pid;
+  document.getElementById('lab-cats').innerHTML=LAB_CATS.map(cat=>`
+    <div style="background:var(--s);border:1px solid var(--b);border-radius:10px;padding:12px;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:700;margin-bottom:9px">${cat.ico} ${cat.name}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">
+        ${cat.tests.map(t=>`<label style="display:flex;align-items:center;gap:7px;font-size:11px;cursor:pointer;padding:4px 6px;border-radius:5px;color:var(--t);text-transform:none;letter-spacing:0;margin-top:0;transition:background .15s" onmouseover="this.style.background='rgba(37,99,235,.07)'" onmouseout="this.style.background=''">
+          <input type="checkbox" class="lc" data-cat="${cat.id}" data-test="${t}" style="width:auto;accent-color:var(--a)">${t}
+        </label>`).join('')}
+      </div>
+    </div>`).join('');
+  openModal('modal-labs');
+}
+async function saveLabs(){
+  const pid=document.getElementById('lp-id').value;
+  const urg=document.getElementById('lab-urg').value;
+  const notes=document.getElementById('lab-notes').value;
+  const checks=document.querySelectorAll('.lc:checked');
+  if(!checks.length){toast('Выберите хотя бы один анализ','warn');return;}
+  const btn=document.getElementById('save-labs-btn');btn.disabled=true;
+  let ok=0;
+  for(const ch of checks){
+    const r=await post('lab_orders',{patient_id:pid,doctor_id:doctor.id,category:ch.dataset.cat,test_name:ch.dataset.test,urgency:urg,notes:notes||null,status:'ordered',ordered_at:new Date().toISOString()});
+    if(r)ok++;
+  }
+  await patch('patients',{lab_ordered:true},`id=eq.${pid}`);
+  toast(`Назначено анализов: ${ok}`,'ok');closeModal('modal-labs');
+  document.getElementById('lab-notes').value='';
+  patients=await get('patients','is_hospitalized=eq.true&order=created_at.desc');
+  await renderPatientDetail(pid);
+  btn.disabled=false;
+}
+
+// ═══ LAB RESULTS ═══
+function openResultModal(oid,pid,name){
+  document.getElementById('ro-id').value=oid;document.getElementById('rp-id').value=pid;
+  document.getElementById('r-test-name').textContent='🔬 '+name;
+  ['r-val','r-unit','r-range','r-concl'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('r-abn').checked=false;
+  document.getElementById('r-abn-type').style.display='none';
+  openModal('modal-result');
+}
+document.addEventListener('change',e=>{if(e.target.id==='r-abn')document.getElementById('r-abn-type').style.display=e.target.checked?'block':'none';});
+async function saveResult(){
+  const oid=document.getElementById('ro-id').value;
+  const pid=document.getElementById('rp-id').value;
+  const btn=document.getElementById('save-result-btn');btn.disabled=true;
+  const isAb=document.getElementById('r-abn').checked;
+  const res=await post('lab_results',{order_id:oid,patient_id:pid,laborant_id:doctor.id,
+    result_value:document.getElementById('r-val').value||null,
+    result_unit:document.getElementById('r-unit').value||null,
+    reference_range:document.getElementById('r-range').value||null,
+    is_abnormal:isAb,abnormal_type:isAb?document.getElementById('r-abn-type').value:null,
+    conclusion:document.getElementById('r-concl').value||null,received_at:new Date().toISOString()});
+  if(res){
+    await patch('lab_orders',{status:'completed'},`id=eq.${oid}`);
+    await patch('patients',{lab_received:true},`id=eq.${pid}`);
+    if(isAb&&document.getElementById('r-abn-type').value==='critical'){
+      const p=patients.find(x=>x.id===pid);
+      await post('alerts',{patient_id:pid,doctor_id:doctor.id,type:'critical_lab',severity:5,
+        title:'⚠️ Критический результат анализа',
+        message:`${p?.name.split(' ').slice(0,2).join(' ')||'Пациент'}: ${document.getElementById('r-test-name').textContent.replace('🔬 ','')} — критическое отклонение!`,is_active:true});
+      await loadAlerts();
+    }
+    toast('Результат сохранён','ok');closeModal('modal-result');
+    patients=await get('patients','is_hospitalized=eq.true&order=created_at.desc');
+    await renderLabsPending();
+  }else toast('Ошибка','crit');
+  btn.disabled=false;
+}
+
+// ═══ RBAC ACCESS ═══
+async function openPatient(id){
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  const acc=canAccess(p);
+  if(acc==='denied'){toast('Доступ запрещён — не ваш пациент','crit');await post('audit_log',{doctor_id:doctor.id,patient_id:id,action:'ACCESS_DENIED'});return;}
+  if(acc==='emergency'){pendingId=id;openModal('modal-emergency');return;}
+  await post('audit_log',{doctor_id:doctor.id,patient_id:id,action:'VIEW'});
+  await renderPatientDetail(id);
+}
+async function confirmEmergency(){
+  const reason=document.getElementById('em-reason').value.trim();
+  if(reason.length<15){toast('Причина должна быть минимум 15 символов','warn');return;}
+  closeModal('modal-emergency');
+  await post('audit_log',{doctor_id:doctor.id,patient_id:pendingId,action:'BREAK_GLASS_ACCESS',justification:reason});
+  const p=patients.find(x=>x.id===pendingId);
+  await post('alerts',{patient_id:pendingId,doctor_id:doctor.id,type:'emergency_access',severity:3,
+    title:'🔓 Экстренный доступ (Break-Glass)',
+    message:`${doctor.short_name}: ${p?.name.split(' ').slice(0,2).join(' ')||''}. Причина: ${reason}`,is_active:true});
+  await loadAlerts();
+  await renderPatientDetail(pendingId);
+  pendingId=null;document.getElementById('em-reason').value='';
+}
+
+// ═══ RENDER ═══
+function renderDashboard(){
+  const mine=patients.filter(p=>ADMIN_ROLES.includes(doctor.role)||LAB_ROLES.includes(doctor.role)||EMERGENCY_ROLES.includes(doctor.role)||p.doctor_id===doctor.id);
+  const crit=mine.filter(p=>{const n=calcNEWS2(p.vitals||{});return n.score>=7;}).length;
+  const med=mine.filter(p=>{const n=calcNEWS2(p.vitals||{});return n.score>=5&&n.score<7;}).length;
+  const noLab=mine.filter(p=>{const h=(Date.now()-new Date(p.admission).getTime())/3600000;return h>=6&&!p.lab_received;}).length;
+  const freeBeds=beds.filter(b=>!b.is_occupied).length;
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="stat" style="${crit?'border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.04)':''}">
+      <div class="sv" style="color:${crit?'var(--crit)':'var(--ok)'}">${crit}</div><div class="sl">NEWS2 Крит.</div></div>
+    <div class="stat" style="${med?'border-color:rgba(245,158,11,.3)':''}">
+      <div class="sv" style="color:${med?'var(--warn)':'var(--t)'}">${med}</div><div class="sl">NEWS2 Средн.</div></div>
+    <div class="stat"><div class="sv">${mine.length}</div><div class="sl">Пациентов</div></div>
+    <div class="stat" style="${noLab?'border-color:rgba(245,158,11,.3)':''}">
+      <div class="sv" style="color:${noLab?'var(--warn)':'var(--t)'}">${noLab}</div><div class="sl">Без анализов</div></div>
+    <div class="stat"><div class="sv" style="color:var(--ok)">${freeBeds}</div><div class="sl">Свободных коек</div></div>
+    <div class="stat"><div class="sv" style="color:var(--al)">${alerts.length}</div><div class="sl">Алертов</div></div>`;
+  // Smart Insights (из registration.js: analytics)
+  const insEl=document.getElementById('smart-insights');
+  if(insEl&&suggestions.freeDepts.length){
+    insEl.style.display='block';
+    insEl.innerHTML=`<div style="background:linear-gradient(135deg,rgba(37,99,235,.08),rgba(124,58,237,.08));border:1px solid rgba(37,99,235,.2);border-radius:13px;padding:14px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">📊 Аналитика — рекомендации системы</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+        <div>
+          <div style="font-size:10px;color:var(--m);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">🏥 Свободные койки по отделениям</div>
+          ${suggestions.freeDepts.slice(0,4).map(d=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--b)"><span style="font-size:11px">${d.name}</span><span style="font-size:11px;font-family:monospace;color:#34d399;font-weight:700">${d.free} свободных</span></div>`).join('')}
+        </div>
+        ${suggestions.allergies.length?`<div>
+          <div style="font-size:10px;color:var(--m);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">⚠️ Частые аллергии в больнице</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px">${suggestions.allergies.slice(0,6).map(a=>`<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)">${a}</span>`).join('')}</div>
+        </div>`:''}
+        ${suggestions.icd10.length?`<div>
+          <div style="font-size:10px;color:var(--m);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">📋 Частые диагнозы МКБ-10</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px">${suggestions.icd10.slice(0,6).map(c=>`<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(37,99,235,.1);color:#60a5fa;border:1px solid rgba(37,99,235,.2)">${c}</span>`).join('')}</div>
+        </div>`:''}
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('dash-alerts-strip').innerHTML=alerts.slice(0,3).map(a=>`
+    <div class="al ${a.severity>=4?'acr':'aw'}">
+      <span style="flex-shrink:0;font-size:17px">${a.severity>=4?'🔴':'🟡'}</span>
+      <div style="flex:1"><div style="font-size:12px;font-weight:700">${a.title}</div><div style="font-size:11px;color:var(--m);margin-top:2px">${a.message}</div></div>
+      <button class="btn bg bsm" onclick="ackAlert('${a.id}')">✓</button>
+    </div>`).join('');
+  document.getElementById('dash-patients').innerHTML=renderPCards(mine.slice(0,6));
+}
+
+function renderPCards(list){
+  if(!list.length)return'<div class="empty">Нет пациентов</div>';
+  return list.map(p=>{
+    const v=p.vitals||{},locked=canAccess(p)==='denied';
+    const n=calcNEWS2({spo2:v.spo2||99,rr:v.rr||16,pulse:v.pulse||80,temp:v.temp||36.6,sys:v.sys||120});
+    const nbg=n.score>=7?'rgba(239,68,68,.06)':n.score>=5?'rgba(245,158,11,.05)':'';
+    return `<div class="pc ${locked?'locked':''}" style="${nbg?'background:'+nbg:''}" onclick="${locked?`toast('Доступ запрещён','crit')`:`openPatient('${p.id}')`}">
+      ${locked?'<span style="position:absolute;top:11px;right:11px;font-size:13px">🔒</span>':''}
+      <div class="pn">${p.name}</div>
+      <div class="pm">${p.age||'?'} лет · ${p.gender||'?'} · Пал.${p.bed}</div>
+      <div style="margin-top:6px">
+        <span class="tag tb">${p.department}</span>
+        ${p.blood_type?`<span class="tag ty">${p.blood_type}</span>`:''}
+      </div>
+      <div style="margin-top:8px">${news2Badge(n)}</div>
+      <div class="pills">
+        <span class="pill ${pCls('spo2',v.spo2||99)}">SpO₂ ${v.spo2||'—'}%</span>
+        <span class="pill ${pCls('sys',v.sys||120)}">АД ${v.sys||'—'}/${v.dia||'—'}</span>
+        <span class="pill ${pCls('pulse',v.pulse||80)}">ЧСС ${v.pulse||'—'}</span>
+        <span class="pill ${pCls('temp',v.temp||36.6)}">${v.temp||'—'}°C</span>
+      </div>
+      <div style="font-size:10px;color:var(--m);margin-top:7px;font-family:monospace">
+        ${p.lab_received?'✅ Анализы получены':p.lab_ordered?'⏱ Анализы ожидаются':'⚠️ Анализы не назначены'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function renderPatientDetail(id){
+  const p=patients.find(x=>x.id===id)||await get('patients',`id=eq.${id}&limit=1`).then(r=>r[0]);
+  if(!p)return;
+  const v=p.vitals||{},va=analyzeV(v),tests=suggestTests(v);
+  const hrs=Math.round((Date.now()-new Date(p.admission).getTime())/3600000);
+  const doc=doctors.find(d=>d.id===p.doctor_id);
+  const n=calcNEWS2({spo2:v.spo2||99,rr:v.rr||16,pulse:v.pulse||80,temp:v.temp||36.6,sys:v.sys||120});
+  const [exams,labOrders,meds,n2hist]=await Promise.all([
+    get('examinations',`patient_id=eq.${p.id}&order=created_at.desc`),
+    get('lab_orders',`patient_id=eq.${p.id}&order=ordered_at.desc`),
+    get('medical_orders',`patient_id=eq.${p.id}&order=created_at.desc`),
+    get('news2_scores',`patient_id=eq.${p.id}&order=created_at.desc&limit=5`),
+  ]);
+  const canEdit=['Administrator','Chief_Doctor','Doctor','Resuscitator','Surgeon','Cardiologist','Therapist','Neurologist','Anesthesiologist'].includes(doctor.role);
+
+  document.getElementById('patient-detail').innerHTML=`
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:20px;font-weight:800">${p.name}</div>
+          <div style="font-family:monospace;font-size:11px;color:var(--m);margin-top:5px">${p.age} лет · ${p.gender} · ${p.date_of_birth||''} · Палата ${p.bed} · ${hrs} ч в стационаре</div>
+          <div style="margin-top:8px">
+            <span class="tag tb">${p.department}</span>
+            ${p.blood_type?`<span class="tag ty">🩸 ${p.blood_type}</span>`:''}
+            ${(p.conditions||[]).map(c=>`<span class="tag tr">${c}</span>`).join('')}
+          </div>
+          <div style="margin-top:9px">${news2Badge(n)}</div>
+          ${doc?`<div style="font-size:12px;color:var(--m);margin-top:8px">👨‍⚕️ <span style="color:var(--t);font-weight:600">${doc.name}</span></div>`:''}
+          ${p.phone?`<div style="font-size:12px;color:var(--m);margin-top:4px">📞 ${p.phone}</div>`:''}
+          ${p.national_id?`<div style="font-size:12px;color:var(--m);margin-top:4px">🪪 ИНН: ${p.national_id}</div>`:''}
+          ${(p.allergies||[]).length?`<div style="font-size:12px;color:var(--crit);margin-top:7px;font-weight:700">⚠️ Аллергии: ${p.allergies.join(', ')}</div>`:''}
+        </div>
+        ${canEdit?`<div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="btn bp bsm" onclick="openExamModal('${p.id}')">+ Осмотр</button>
+          <button class="btn bw bsm" onclick="openLabModal('${p.id}')">🔬 Анализы</button>
+          <button class="btn bs bsm" onclick="openMedModal('${p.id}')">💊 Лекарство</button>
+        </div>`:''}
+      </div>
+    </div>
+
+    ${va.length?`<div style="margin-bottom:12px">${va.map(a=>`<div class="al ${a.sev>=4?'acr':'aw'}" style="margin-bottom:6px"><span>${a.sev>=4?'🔴':'🟡'}</span><div><div style="font-size:12px;font-weight:700">${a.flag}</div><div style="font-size:11px;color:var(--m)">${a.msg}</div></div></div>`).join('')}</div>`:''}
+
+    <div class="sec">Витальные функции</div>
+    <div class="vg">
+      ${[{k:'spo2',val:`${v.spo2||'—'}%`,l:'SpO₂'},{k:'pulse',val:v.pulse||'—',l:'ЧСС'},{k:'sys',val:`${v.sys||'—'}/${v.dia||'—'}`,l:'АД',sm:1},{k:'temp',val:`${v.temp||'—'}°C`,l:'Темп.'},{k:'rr',val:v.rr||'—',l:'ЧД'},{k:'gcs',val:`${v.gcs||'—'}/15`,l:'ШКГ'}].map(x=>`
+      <div class="vc ${x.k==='rr'?'vok':vCls(x.k,v[x.k]||99)}">
+        <div class="vv" style="${x.sm?'font-size:15px':''}">${x.val}</div>
+        <div class="vl">${x.l}</div>
+      </div>`).join('')}
+    </div>
+
+    ${n2hist.length>1?`
+    <div class="card" style="padding:14px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">📈 История NEWS2</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${n2hist.map(sc=>`<div style="text-align:center;padding:8px 12px;border-radius:8px;background:${sc.risk_level==='RED_CRITICAL'?'rgba(239,68,68,.1)':sc.risk_level==='ORANGE_MEDIUM'?'rgba(245,158,11,.1)':'rgba(16,185,129,.08)'}">
+          <div style="font-size:20px;font-weight:800;color:${sc.risk_level==='RED_CRITICAL'?'#f87171':sc.risk_level==='ORANGE_MEDIUM'?'#fbbf24':'#34d399'}">${sc.score}</div>
+          <div style="font-size:9px;color:var(--m);margin-top:2px">${new Date(sc.created_at).toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+        </div>`).join('')}
+      </div>
+    </div>`:''}
+
+    <div class="aib">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px">
+        <div style="width:34px;height:34px;background:var(--grad);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🤖</div>
+        <div><div style="font-size:13px;font-weight:700;color:#60a5fa">SilkMed AI — Рекомендации (NEWS2: ${n.score})</div><div style="font-size:10px;color:var(--m)">${n.action}</div></div>
+      </div>
+      ${tests.map(t=>`<div class="sug">${t}</div>`).join('')}
+    </div>
+
+    ${meds.length?`
+    <div class="sec">Назначения лекарств (${meds.length})</div>
+    <div style="background:var(--c);border:1px solid var(--b);border-radius:12px;overflow:hidden">
+      ${meds.map(m=>`<div class="mo">
+        <div>
+          <div style="font-size:12px;font-weight:700">💊 ${m.medication_name} — ${m.dosage}</div>
+          <div style="font-size:10px;color:var(--m);margin-top:2px">${m.route} · ${m.schedule}</div>
+        </div>
+        <span class="mo-s ${m.status==='Completed'?'s-done':m.status==='In_Progress'?'s-ip':'s-pend'}">${m.status==='Completed'?'Выполнено':m.status==='In_Progress'?'Выполняется':'Ожидает'}</span>
+      </div>`).join('')}
+    </div>`:''}
+
+    <div class="sec">История осмотров (${exams.length})</div>
+    ${exams.length?exams.map(e=>`
+      <div style="background:var(--s);border:1px solid var(--b);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all .2s" onclick="renderExamDetail('${e.id}','${p.id}')" onmouseover="this.style.borderColor='var(--a)'" onmouseout="this.style.borderColor='var(--b)'">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:7px">
+          <div>
+            <div style="font-size:12px;font-weight:700">${e.is_primary?'🏥 Первичный осмотр':'📋 Осмотр'} · ${new Date(e.created_at).toLocaleString('ru',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+            ${e.diagnosis?`<div style="font-size:11px;color:var(--m);margin-top:3px">Диагноз: ${e.diagnosis}</div>`:''}
+            ${e.news2_score!=null?`<div style="margin-top:4px">${news2Badge({score:e.news2_score,risk:e.news2_risk||'GREEN_LOW'})}</div>`:''}
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:flex-start">
+            ${e.spo2?`<span class="pill ${pCls('spo2',e.spo2)}">${e.spo2}%</span>`:''}
+            ${e.bp_systolic?`<span class="pill ${pCls('sys',e.bp_systolic)}">${e.bp_systolic}/${e.bp_diastolic}</span>`:''}
+            ${e.pulse?`<span class="pill ${pCls('pulse',e.pulse)}">ЧСС ${e.pulse}</span>`:''}
+          </div>
+        </div>
+      </div>`).join(''):'<div class="empty" style="padding:20px">Осмотров не было</div>'}
+
+    <div class="sec">Анализы и исследования (${labOrders.length})</div>
+    ${labOrders.length?`<div style="background:var(--c);border:1px solid var(--b);border-radius:12px;overflow:hidden">
+      ${labOrders.map(o=>`<div class="mo">
+        <div>
+          <div style="font-size:12px;font-weight:600">${LAB_CATS.find(c=>c.id===o.category)?.ico||'🔬'} ${o.test_name}</div>
+          <div style="font-size:10px;color:var(--m);margin-top:2px;font-family:monospace">${new Date(o.ordered_at).toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${o.urgency==='stat'?'⚡ Экстренно':o.urgency==='urgent'?'🔶 Срочно':'📅 Планово'}</div>
+        </div>
+        <span class="mo-s ${o.status==='completed'?'s-done':'s-ip'}">${o.status==='completed'?'✓ Выполнен':'⏳ Ожидает'}</span>
+      </div>`).join('')}
+    </div>`:'<div class="empty" style="padding:20px">Анализов не назначено</div>'}
+  `;
+  showPage('patient-detail');
+}
+
+async function renderExamDetail(eid,pid){
+  const e=(await get('examinations',`id=eq.${eid}&limit=1`))[0];if(!e)return;
+  document.getElementById('exam-back').onclick=()=>renderPatientDetail(pid);
+  document.getElementById('exam-detail').innerHTML=`
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-size:22px">${e.is_primary?'🏥':'📋'}</span>
+        <div>
+          <div style="font-size:16px;font-weight:800">${e.is_primary?'Первичный осмотр':'Плановый осмотр'}</div>
+          <div style="font-size:11px;color:var(--m);font-family:monospace">${new Date(e.created_at).toLocaleString('ru')}</div>
+        </div>
+      </div>
+      ${e.news2_score!=null?`<div style="margin-top:8px">${news2Badge({score:e.news2_score,risk:e.news2_risk||'GREEN_LOW'})}</div>`:''}
+      ${e.diagnosis?`<div style="margin-top:10px"><span class="tag tr">Диагноз: ${e.diagnosis}</span>${e.icd10_code?`<span class="tag ty">МКБ-10: ${e.icd10_code}</span>`:''}</div>`:''}
+    </div>
+    ${(e.spo2||e.pulse||e.bp_systolic)?`
+    <div class="vg">
+      ${e.spo2?`<div class="vc ${vCls('spo2',e.spo2)}"><div class="vv">${e.spo2}%</div><div class="vl">SpO₂</div></div>`:''}
+      ${e.pulse?`<div class="vc ${vCls('pulse',e.pulse)}"><div class="vv">${e.pulse}</div><div class="vl">ЧСС</div></div>`:''}
+      ${e.bp_systolic?`<div class="vc ${vCls('sys',e.bp_systolic)}"><div class="vv" style="font-size:15px">${e.bp_systolic}/${e.bp_diastolic}</div><div class="vl">АД</div></div>`:''}
+      ${e.temperature?`<div class="vc ${vCls('temp',e.temperature)}"><div class="vv">${e.temperature}°C</div><div class="vl">Темп.</div></div>`:''}
+      ${e.resp_rate?`<div class="vc vok"><div class="vv">${e.resp_rate}</div><div class="vl">ЧД</div></div>`:''}
+      ${e.gcs_score?`<div class="vc ${vCls('gcs',e.gcs_score)}"><div class="vv">${e.gcs_score}/15</div><div class="vl">ШКГ</div></div>`:''}
+    </div>`:''}
+    <div class="g2">
+      ${e.complaints?`<div class="card"><div style="font-size:10px;font-weight:700;color:var(--m);text-transform:uppercase;margin-bottom:8px">Жалобы</div><p style="font-size:12px;line-height:1.7;color:var(--m)">${e.complaints}</p></div>`:''}
+      ${e.objective_data?`<div class="card"><div style="font-size:10px;font-weight:700;color:var(--m);text-transform:uppercase;margin-bottom:8px">Объективно</div><p style="font-size:12px;line-height:1.7;color:var(--m)">${e.objective_data}</p></div>`:''}
+    </div>
+    ${e.treatment?`<div class="card"><div style="font-size:10px;font-weight:700;color:var(--m);text-transform:uppercase;margin-bottom:8px">Назначения и лечение</div><p style="font-size:12px;line-height:1.7;color:var(--m)">${e.treatment}</p></div>`:''}
+  `;
+  showPage('exam-detail');
+}
+
+function openExamModal(pid){
+  document.getElementById('ep-id').value=pid;
+  const p=patients.find(x=>x.id===pid);
+  if(p?.vitals){const v=p.vitals;
+    if(v.spo2)document.getElementById('e-spo2').value=v.spo2;
+    if(v.pulse)document.getElementById('e-pulse').value=v.pulse;
+    if(v.sys)document.getElementById('e-sys').value=v.sys;
+    if(v.dia)document.getElementById('e-dia').value=v.dia;
+    if(v.temp)document.getElementById('e-temp').value=v.temp;
+    if(v.rr)document.getElementById('e-rr').value=v.rr;
+    if(v.gcs)document.getElementById('e-gcs').value=v.gcs;
+    if(v.weight_kg)document.getElementById('e-weight').value=v.weight_kg;
+  }
+  openModal('modal-exam');
+}
+
+async function renderBeds(){
+  const byDept={};
+  for(const b of beds){
+    const d=departments.find(x=>x.id===b.department_id);
+    const key=d?d.name_ru:'Прочее';
+    if(!byDept[key])byDept[key]=[];
+    byDept[key].push(b);
+  }
+  const total=beds.length,occ=beds.filter(b=>b.is_occupied).length,free=total-occ;
+  document.getElementById('beds-content').innerHTML=`
+    <div style="display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap">
+      <div class="card" style="padding:12px 18px;flex:1;min-width:120px;text-align:center">
+        <div style="font-size:28px;font-weight:800;color:var(--crit)">${occ}</div>
+        <div style="font-size:10px;color:var(--m);margin-top:3px;text-transform:uppercase">Занято</div>
+      </div>
+      <div class="card" style="padding:12px 18px;flex:1;min-width:120px;text-align:center">
+        <div style="font-size:28px;font-weight:800;color:var(--ok)">${free}</div>
+        <div style="font-size:10px;color:var(--m);margin-top:3px;text-transform:uppercase">Свободно</div>
+      </div>
+      <div class="card" style="padding:12px 18px;flex:1;min-width:120px;text-align:center">
+        <div style="font-size:28px;font-weight:800">${total}</div>
+        <div style="font-size:10px;color:var(--m);margin-top:3px;text-transform:uppercase">Всего</div>
+      </div>
+      <div class="card" style="padding:12px 18px;flex:1;min-width:120px;text-align:center">
+        <div style="font-size:28px;font-weight:800;color:var(--al)">${Math.round(occ/total*100)||0}%</div>
+        <div style="font-size:10px;color:var(--m);margin-top:3px;text-transform:uppercase">Заполненность</div>
+      </div>
+    </div>
+    ${Object.entries(byDept).map(([dept,dBeds])=>`
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px">🏥 ${dept} 
+        <span style="font-size:10px;color:var(--m);font-family:monospace;margin-left:8px">${dBeds.filter(b=>b.is_occupied).length}/${dBeds.length} занято</span>
+      </div>
+      <div class="bed-grid">
+        ${dBeds.map(b=>`<div class="bed ${b.is_occupied?'bed-occ':'bed-free'}">
+          <span class="bed-ico">${b.is_occupied?'🛏':'🛌'}</span>
+          <div style="font-size:11px;font-weight:700">${b.ward_number}</div>
+          <div class="bed-code">${b.bed_code}</div>
+          <div style="font-size:10px;margin-top:3px;font-weight:600">${b.is_occupied?'ЗАНЯТА':'СВОБОДНА'}</div>
+        </div>`).join('')}
+      </div>
+    </div>`).join('')}
+  `;
+}
+
+async function renderLabsPending(){
+  const orders=await get('lab_orders','status=eq.ordered&order=ordered_at.asc');
+  const pMap={};
+  (await get('patients','is_hospitalized=eq.true')).forEach(p=>pMap[p.id]=p.name);
+  document.getElementById('labs-pending').innerHTML=orders.length
+    ?orders.map(o=>`<div class="card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-size:13px;font-weight:700">${LAB_CATS.find(c=>c.id===o.category)?.ico||'🔬'} ${o.test_name}</div>
+            <div style="font-size:12px;color:var(--m);margin-top:4px">👤 ${pMap[o.patient_id]?.split(' ').slice(0,2).join(' ')||'Пациент'}</div>
+            <div style="font-size:10px;color:var(--m);margin-top:3px;font-family:monospace">${new Date(o.ordered_at).toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${o.urgency==='stat'?'<span style="color:var(--crit);font-weight:700">⚡ ЭКСТРЕННО</span>':o.urgency==='urgent'?'<span style="color:var(--warn);font-weight:700">🔶 СРОЧНО</span>':'📅 Планово'}</div>
+          </div>
+          <button class="btn bp bsm" onclick="openResultModal('${o.id}','${o.patient_id}','${o.test_name}')">Ввести результат</button>
+        </div>
+      </div>`).join('')
+    :'<div class="empty">✅ Все анализы выполнены</div>';
+}
+
+function renderDoctors(){
+  document.getElementById('doctors-list').innerHTML=!doctors.length?'<div class="empty">Нет сотрудников</div>'
+    :doctors.map(d=>{
+      const roleNameMap={physician:'Doctor',intensivist:'Resuscitator',laborant:'Laboratory_Assistant',admin:'Administrator'};
+      const displayRole=roleNameMap[d.role]||d.role;
+      const unver=d.is_verified===false;
+      return`<div class="dc ${unver?'unver':''}">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:40px;height:40px;background:var(--grad);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">${displayRole==='Laboratory_Assistant'?'🔬':displayRole==='Resuscitator'?'🏥':displayRole==='Administrator'?'⚙️':'👨‍⚕️'}</div>
+          <div>
+            <div style="font-size:13px;font-weight:700">${d.name}</div>
+            <div style="font-size:11px;color:var(--m)">${d.specialty||'Специализация не указана'}</div>
+          </div>
+        </div>
+        <div>
+          <span class="tag ${roleCls(displayRole)}">${roleLabel(displayRole)}</span>
+          <span class="tag ty">${d.department||'—'}</span>
+          ${unver?`<span class="tag" style="background:rgba(245,158,11,.15);color:#fbbf24">⏳ Ожидает верификации</span>`:''}
+        </div>
+        ${d.license_number?`<div style="font-size:11px;color:var(--m);margin-top:7px">🪪 ${d.license_number}</div>`:''}
+        ${d.phone?`<div style="font-size:11px;color:var(--m);margin-top:3px">📞 ${d.phone}</div>`:''}
+        ${d.email?`<div style="font-size:11px;color:var(--m);margin-top:3px">✉️ ${d.email}</div>`:''}
+        ${ADMIN_ROLES.includes(doctor.role)&&unver?`<button class="btn bs bsm" style="margin-top:10px;width:100%" onclick="verifyDoctor('${d.id}')">✓ Верифицировать</button>`:''}
+      </div>`;
+    }).join('');
+}
+
+async function verifyDoctor(id){
+  await patch('doctors',{is_verified:true,verified_by:doctor.id},`id=eq.${id}`);
+  await post('audit_log',{doctor_id:doctor.id,action:'VERIFY_DOCTOR'});
+  toast('Сотрудник верифицирован','ok');
+  doctors=await get('doctors','order=name.asc');renderDoctors();
+}
+
+function renderAlerts(){
+  document.getElementById('alerts-list').innerHTML=alerts.length
+    ?alerts.map(a=>`<div class="al ${a.severity>=4?'acr':'aw'}">
+        <span style="flex-shrink:0;font-size:18px">${a.severity>=4?'🔴':'🟡'}</span>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:700">${a.title}</div>
+          <div style="font-size:11px;color:var(--m);margin-top:3px">${a.message}</div>
+          <div style="font-size:10px;color:var(--m);margin-top:3px;font-family:monospace">${new Date(a.created_at).toLocaleTimeString('ru')}</div>
+        </div>
+        <button class="btn bg bsm" onclick="ackAlert('${a.id}')">Принять</button>
+      </div>`).join('')
+    :'<div class="empty">✅ Активных алертов нет</div>';
+}
+
+async function renderAudit(){
+  document.getElementById('audit-body').innerHTML='<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--m)">⏳ Загрузка...</td></tr>';
+  const logs=await get('audit_log','order=created_at.desc&limit=80');
+  const dMap={};doctors.forEach(d=>dMap[d.id]=d.short_name);
+  const pMap={};patients.forEach(p=>pMap[p.id]=p.name.split(' ').slice(0,2).join(' '));
+  document.getElementById('audit-body').innerHTML=logs.length
+    ?logs.map(e=>`<tr>
+      <td>${new Date(e.created_at).toLocaleString('ru',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</td>
+      <td>${dMap[e.doctor_id]||'—'}</td>
+      <td>${pMap[e.patient_id]||'—'}</td>
+      <td><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;
+        background:${e.action==='BREAK_GLASS_ACCESS'?'rgba(239,68,68,.15)':e.action==='LOGIN'?'rgba(16,185,129,.1)':e.action==='ACCESS_DENIED'?'rgba(245,158,11,.12)':'rgba(37,99,235,.12)'};
+        color:${e.action==='BREAK_GLASS_ACCESS'?'#f87171':e.action==='LOGIN'?'#34d399':e.action==='ACCESS_DENIED'?'#fbbf24':'#60a5fa'}">${e.action}</span></td>
+    </tr>`).join('')
+    :'<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--m)">Журнал пуст</td></tr>';
+}
+
+async function ackAlert(id){
+  await patch('alerts',{is_active:false},`id=eq.${id}`);
+  await loadAlerts();renderAlerts();renderDashboard();
+}
+
+// ═══ NAV ═══
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name)?.classList.add('active');
+  document.getElementById('tab-'+name)?.classList.add('active');
+  if(name==='dashboard')renderDashboard();
+  if(name==='patients')document.getElementById('all-patients').innerHTML=renderPCards(patients);
+  if(name==='beds')renderBeds();
+  if(name==='alerts')renderAlerts();
+  if(name==='doctors')renderDoctors();
+  if(name==='labs')renderLabsPending();
+  if(name==='audit')renderAudit();
+  if(name==='manage')renderManage();
+}
+function showScr(id){
+  ['login-screen','reg-screen'].forEach(s=>document.getElementById(s).style.display='none');
+  document.getElementById('app').style.display='none';
+  if(id==='app')document.getElementById('app').style.display='block';
+  else if(id==='login')document.getElementById('login-screen').style.display='flex';
+  else if(id==='reg')document.getElementById('reg-screen').style.display='flex';
+}
+function openModal(id){
+  if(id==='modal-patient'){
+    const sel=document.getElementById('p-doctor');
+    sel.innerHTML=doctors.map(d=>`<option value="${d.id}">${d.name} · ${d.department}</option>`).join('');
+    if(doctor)sel.value=doctor.id;
+  }
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function clrF(ids){ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';})}
+function toast(msg,type){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.style.display='block';
+  el.style.background=type==='crit'?'var(--crit)':type==='ok'?'var(--ok)':'var(--warn)';
+  el.style.color='#fff';
+  setTimeout(()=>el.style.display='none',3500);
+}
+
+
+// ═══ MANAGE: DEPARTMENTS & BEDS ═══
+async function renderManage(){
+  document.getElementById('manage-content').innerHTML=`
+    <div class="sec">Управление структурой больницы
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn bs bsm" onclick="openModal('modal-dept')">+ Отделение</button>
+        <button class="btn bp bsm" onclick="openModal('modal-hospital')">🏗 + Корпус/Больница</button>
+      </div>
+    </div>
+    <div id="manage-depts-list"></div>
+  `;
+  await renderManageDepts();
+}
+
+async function renderManageDepts(){
+  const el=document.getElementById('manage-depts-list');
+  if(!el)return;
+  // Reload fresh data
+  departments=await get('departments','order=name_ru.asc');
+  beds=await get('hospital_beds','order=bed_code.asc');
+  
+  el.innerHTML=departments.map(d=>{
+    const dBeds=beds.filter(b=>b.department_id===d.id);
+    const occ=dBeds.filter(b=>b.is_occupied).length;
+    const free=dBeds.length-occ;
+    return \`<div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+        <div>
+          <div style="font-size:15px;font-weight:700">🏥 \${d.name_ru}</div>
+          <div style="font-size:11px;color:var(--m);margin-top:3px;font-family:monospace">
+            Код: \${d.code} · \${d.name_tg||'—'}
+          </div>
+          <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+            <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(37,99,235,.1);color:#60a5fa;font-family:monospace">
+              Всего коек: \${dBeds.length}
+            </span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(239,68,68,.1);color:#f87171;font-family:monospace">
+              Занято: \${occ}
+            </span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(16,185,129,.1);color:#34d399;font-family:monospace">
+              Свободно: \${free}
+            </span>
+          </div>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="btn bp bsm" onclick="openBedModal('\${d.id}','\${d.name_ru}','\${d.code}')">+ Добавить койки</button>
+          <button class="btn bg bsm" onclick="editDept('\${d.id}','\${d.name_ru}','\${d.name_tg||''}','\${d.code}')">✏️ Изменить</button>
+        </div>
+      </div>
+      \${dBeds.length?(\`
+      <div style="border-top:1px solid var(--b);padding-top:12px">
+        <div style="font-size:10px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Схема палат</div>
+        <div class="bed-grid">\`+
+        dBeds.map(b=>\`<div class="bed \${b.is_occupied?'bed-occ':'bed-free'}" title="\${b.bed_code}">
+          <span class="bed-ico">\${b.is_occupied?'🛏':'🛌'}</span>
+          <div style="font-size:11px;font-weight:700">Пал.\${b.ward_number}</div>
+          <div class="bed-code">\${b.bed_code}</div>
+          <div style="font-size:9px;margin-top:2px;font-weight:600">\${b.is_occupied?'ЗАНЯТА':'СВОБОДНА'}</div>
+        </div>\`).join('')+
+        \`</div>
+      </div>\`):'<div style="font-size:12px;color:var(--m);padding:10px 0">Коек не добавлено — нажмите «+ Добавить койки»</div>'}
+    </div>\`;
+  }).join('');
+  if(!departments.length){
+    document.getElementById('manage-depts-list').innerHTML='<div class="empty">Нет отделений — добавьте первое</div>';
+  }
+}
+
+function editDept(id,nameRu,nameTg,code){
+  document.getElementById('dept-edit-id').value=id;
+  document.getElementById('dept-name-ru').value=nameRu;
+  document.getElementById('dept-name-tg').value=nameTg;
+  document.getElementById('dept-code').value=code;
+  document.getElementById('save-dept-btn').textContent='💾 Обновить';
+  openModal('modal-dept');
+}
+
+async function saveDept(){
+  const nameRu=document.getElementById('dept-name-ru').value.trim();
+  const code=document.getElementById('dept-code').value.trim().toUpperCase();
+  if(!nameRu||!code){toast('Заполните название и код','warn');return;}
+  const btn=document.getElementById('save-dept-btn');btn.disabled=true;
+  const editId=document.getElementById('dept-edit-id').value;
+  const body={name_ru:nameRu,name_tg:document.getElementById('dept-name-tg').value.trim()||nameRu,code};
+  let ok=false;
+  if(editId){
+    ok=await patch('departments',body,'id=eq.'+editId);
+    if(ok)toast('Отделение обновлено','ok');
+  } else {
+    const res=await post('departments',body);
+    ok=!!res;
+    if(ok)toast('Отделение добавлено','ok');
+  }
+  if(ok){
+    closeModal('modal-dept');
+    document.getElementById('dept-edit-id').value='';
+    document.getElementById('save-dept-btn').textContent='💾 Сохранить';
+    clrF(['dept-name-ru','dept-name-tg','dept-code']);
+    await renderManageDepts();
+  } else toast('Ошибка. Возможно код уже существует','crit');
+  btn.disabled=false;
+}
+
+function openBedModal(deptId,deptName,deptCode){
+  document.getElementById('bed-dept-id').value=deptId;
+  document.getElementById('bed-dept-name').textContent='🏥 '+deptName;
+  document.getElementById('bed-ward').value='';
+  document.getElementById('bed-room').value='';
+  document.getElementById('bed-count').value='1';
+  document.getElementById('bed-preview').textContent='';
+  // preview on change
+  const upd=()=>{
+    const ward=document.getElementById('bed-ward').value||'1';
+    const room=document.getElementById('bed-room').value||'101';
+    const cnt=+document.getElementById('bed-count').value||1;
+    const prev=[];
+    for(let i=1;i<=Math.min(cnt,5);i++)prev.push(\`\${deptCode}-\${ward}-\${room}-\${String.fromCharCode(64+i)}\`);
+    if(cnt>5)prev.push(\`... ещё \${cnt-5} коек\`);
+    document.getElementById('bed-preview').textContent=prev.join('\n');
+  };
+  document.getElementById('bed-ward').oninput=upd;
+  document.getElementById('bed-room').oninput=upd;
+  document.getElementById('bed-count').oninput=upd;
+  openModal('modal-bed');
+}
+
+async function saveBeds(){
+  const deptId=document.getElementById('bed-dept-id').value;
+  const ward=document.getElementById('bed-ward').value.trim();
+  const room=document.getElementById('bed-room').value.trim();
+  const count=+document.getElementById('bed-count').value||1;
+  if(!ward||!room){toast('Укажите палату и комнату','warn');return;}
+  const dept=departments.find(d=>d.id===deptId);
+  const code=dept?.code||'BED';
+  const btn=document.getElementById('save-bed-btn');btn.disabled=true;
+  let added=0;
+  for(let i=1;i<=count;i++){
+    const bedCode=\`\${code}-\${ward}-\${room}-\${String.fromCharCode(64+i)}\`;
+    const res=await post('hospital_beds',{department_id:deptId,ward_number:ward,room_number:room,bed_code:bedCode,is_occupied:false});
+    if(res)added++;
+  }
+  toast(\`Добавлено коек: \${added}\`,'ok');
+  closeModal('modal-bed');
+  beds=await get('hospital_beds','order=bed_code.asc');
+  await renderManageDepts();
+  btn.disabled=false;
+}
+
+async function saveHospital(){
+  const name=document.getElementById('hosp-name').value.trim();
+  const type=document.getElementById('hosp-type').value;
+  const deptsRaw=document.getElementById('hosp-depts').value;
+  const bedsPerDept=+document.getElementById('hosp-beds').value||4;
+  if(!name||!deptsRaw){toast('Заполните название и отделения','warn');return;}
+  const btn=document.getElementById('save-hosp-btn');btn.disabled=true;btn.textContent='Создание...';
+  
+  const deptNames=deptsRaw.split(',').map(s=>s.trim()).filter(Boolean);
+  let created=0;
+  for(const dname of deptNames){
+    // Генерируем уникальный код
+    const baseCode=(dname.substring(0,4).toUpperCase().replace(/[^A-ZА-Я]/g,''))||'DEPT';
+    const code=baseCode+'_'+Date.now().toString().slice(-4);
+    const dept=await post('departments',{name_ru:\`\${name} — \${dname}\`,name_tg:dname,code});
+    if(dept){
+      const deptId=Array.isArray(dept)?dept[0]?.id:dept.id;
+      if(deptId){
+        for(let i=1;i<=bedsPerDept;i++){
+          const letter=String.fromCharCode(64+i);
+          await post('hospital_beds',{department_id:deptId,ward_number:'1',room_number:'101',bed_code:\`\${baseCode}-101-\${letter}\`,is_occupied:false});
+        }
+        created++;
+      }
+    }
+  }
+  toast(\`Создано отделений: \${created} с \${bedsPerDept} койками каждое\`,'ok');
+  closeModal('modal-hospital');
+  clrF(['hosp-name','hosp-depts']);
+  departments=await get('departments','order=name_ru.asc');
+  beds=await get('hospital_beds','order=bed_code.asc');
+  await renderManageDepts();
+  btn.disabled=false;btn.textContent='🏗 Создать структуру';
+}
+
+
+// ═══ SMART SUGGESTIONS (из registration.js) ═══
+let suggestions = {allergies:[], icd10:[], freeDepts:[]};
+
+async function loadSuggestions(){
+  try{
+    // 1. Топ аллергий из существующих пациентов (registration.js: allergyQuery)
+    const pats=await get('patients','is_hospitalized=eq.true&select=allergies');
+    const allergyCount={};
+    pats.forEach(p=>(p.allergies||[]).forEach(a=>{if(a)allergyCount[a]=(allergyCount[a]||0)+1;}));
+    suggestions.allergies=Object.entries(allergyCount)
+      .sort((a,b)=>b[1]-a[1]).slice(0,10).map(e=>e[0]);
+
+    // 2. Топ диагнозов МКБ-10 (registration.js: icdQuery)
+    const exams=await get('examinations','select=icd10_code&icd10_code=not.is.null');
+    const icdCount={};
+    exams.forEach(e=>{if(e.icd10_code)icdCount[e.icd10_code]=(icdCount[e.icd10_code]||0)+1;});
+    suggestions.icd10=Object.entries(icdCount)
+      .sort((a,b)=>b[1]-a[1]).slice(0,10).map(e=>e[0]);
+
+    // 3. Отделения с наибольшим числом свободных коек (registration.js: deptQuery)
+    const allBeds=await get('hospital_beds','select=department_id,is_occupied');
+    const deptFree={};
+    allBeds.forEach(b=>{if(!b.is_occupied)deptFree[b.department_id]=(deptFree[b.department_id]||0)+1;});
+    suggestions.freeDepts=Object.entries(deptFree)
+      .sort((a,b)=>b[1]-a[1])
+      .map(([id,cnt])=>{
+        const d=departments.find(x=>x.id===id);
+        return d?{id,name:d.name_ru,free:cnt}:null;
+      }).filter(Boolean);
+
+    // Обновляем datalist в форме
+    updateSuggestionLists();
+  }catch(e){console.warn('Suggestions load error:',e);}
+}
+
+function updateSuggestionLists(){
+  // Аллергии datalist
+  const alEl=document.getElementById('dl-allergies');
+  if(alEl) alEl.innerHTML=suggestions.allergies.map(a=>`<option value="${a}">`).join('');
+
+  // МКБ-10 datalist
+  const icdEl=document.getElementById('dl-icd10');
+  if(icdEl) icdEl.innerHTML=suggestions.icd10.map(c=>`<option value="${c}">`).join('');
+
+  // Обновляем порядок отделений в select
+  const deptSel=document.getElementById('p-dept');
+  if(deptSel&&suggestions.freeDepts.length){
+    const current=deptSel.value;
+    const opts=Array.from(deptSel.options);
+    // Сортируем: сначала отделения со свободными койками
+    const freeNames=suggestions.freeDepts.map(d=>d.name);
+    opts.sort((a,b)=>{
+      const ai=freeNames.indexOf(a.value);
+      const bi=freeNames.indexOf(b.value);
+      if(ai>=0&&bi<0)return -1;
+      if(bi>=0&&ai<0)return 1;
+      if(ai>=0&&bi>=0)return ai-bi;
+      return 0;
+    });
+    deptSel.innerHTML='';
+    opts.forEach(o=>{
+      const freeInfo=suggestions.freeDepts.find(d=>d.name===o.value);
+      if(freeInfo)o.text=o.value+' ('+freeInfo.free+' свободных коек)';
+      deptSel.appendChild(o);
+    });
+    deptSel.value=current||opts[0]?.value||'';
+  }
+}
+
+// Подсказка свободных коек при выборе отделения
+function onDeptChange(val){
+  const info=suggestions.freeDepts.find(d=>d.name===val);
+  const hint=document.getElementById('dept-free-hint');
+  if(hint){
+    if(info)hint.textContent='✅ '+info.free+' свободных коек';
+    else hint.textContent='⚠️ Нет данных о свободных койках';
+    hint.style.display='block';
+  }
+}
+
+// ═══ INIT ═══
+updHint();
+(async()=>{
+  const el=document.getElementById('db-status');
+  try{
+    const r=await fetch(`${SB}/doctors?limit=1`,{headers:H});
+    if(r.ok){el.className='dbok';el.textContent='✅ SilkMed AI v2.0 — база данных подключена';}
+    else throw new Error('Статус: '+r.status);
+  }catch(e){el.className='dberr';el.textContent='❌ Нет подключения: '+e.message;}
+})();
+</script>
+</body>
+</html>
