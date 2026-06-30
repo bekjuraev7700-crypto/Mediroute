@@ -238,6 +238,7 @@ header{background:rgba(7,11,17,.95);backdrop-filter:blur(20px);border-bottom:1px
 <!-- REGISTER -->
 <div id="reg-screen" style="display:none;align-items:flex-start;justify-content:center;min-height:100vh;padding:20px;padding-top:30px">
   <div class="card" style="max-width:540px;width:100%;padding:28px">
+    <div id="reg-form">
     <div style="font-size:17px;font-weight:700;margin-bottom:6px">👨‍⚕️ Регистрация сотрудника</div>
     <div style="font-size:12px;color:var(--m);margin-bottom:18px">После регистрации аккаунт будет активирован Администратором</div>
     <div class="g2">
@@ -260,6 +261,7 @@ header{background:rgba(7,11,17,.95);backdrop-filter:blur(20px);border-bottom:1px
           <option value="Laboratory_Assistant">Лаборант</option>
           <option value="Registrar">Регистратор</option>
           <option value="Pharmacist">Фармацевт</option>
+          <option value="Chief_Doctor">Главный врач</option>
           <option value="Administrator">Администратор</option>
         </select>
       </div>
@@ -280,11 +282,40 @@ header{background:rgba(7,11,17,.95);backdrop-filter:blur(20px);border-bottom:1px
       <div><label>Номер лицензии</label><input id="r-lic" placeholder="ЛВ-12345678"></div>
       <div><label>Телефон</label><input id="r-phone" placeholder="+992 99 000 00 00"></div>
     </div>
-    <label>Email *</label><input id="r-email" placeholder="doctor@hospital.tj">
-    <label>Пароль *</label><input id="r-pass" type="password" placeholder="Минимум 6 символов">
+    <label>Email *</label><input id="r-email" type="email" placeholder="doctor@hospital.tj" autocomplete="email">
+    <div class="g2">
+      <div><label>Пароль *</label><input id="r-pass" type="password" placeholder="Минимум 6 символов" autocomplete="new-password"></div>
+      <div><label>Повторите пароль *</label><input id="r-pass2" type="password" placeholder="Повторите пароль" autocomplete="new-password"></div>
+    </div>
     <div style="display:flex;gap:10px;margin-top:18px">
       <button class="btn bg" style="flex:1" onclick="showScr('login')">← Назад</button>
       <button class="btn bp" style="flex:2" id="reg-btn" onclick="registerDoctor()">✓ Зарегистрироваться</button>
+    </div>
+    </div>
+
+    <!-- ЭКРАН УСПЕШНОЙ РЕГИСТРАЦИИ -->
+    <div id="reg-success" style="display:none;text-align:center;padding:10px">
+      <div style="width:64px;height:64px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 18px">✅</div>
+      <div style="font-size:18px;font-weight:800;margin-bottom:8px">Аккаунт создан!</div>
+      <div style="font-size:13px;color:var(--m);line-height:1.7;margin-bottom:18px">
+        Заявка отправлена администратору больницы.<br>
+        Вы сможете войти после подтверждения.
+      </div>
+      <div style="background:var(--s);border:1px solid var(--b2);border-radius:10px;padding:16px;text-align:left;margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--b)">
+          <span style="font-size:11px;color:var(--m)">Имя</span><span id="rs-name" style="font-size:12px;font-weight:700"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--b)">
+          <span style="font-size:11px;color:var(--m)">Email</span><span id="rs-email" style="font-size:12px;font-weight:700"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0">
+          <span style="font-size:11px;color:var(--m)">Роль</span><span id="rs-role" style="font-size:12px;font-weight:700"></span>
+        </div>
+      </div>
+      <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 14px;font-size:11px;color:#fbbf24;margin-bottom:18px">
+        ⏳ Статус: ожидает верификации администратором
+      </div>
+      <button class="btn bp" style="width:100%" onclick="showScr('login');document.getElementById('reg-form').style.display='block';document.getElementById('reg-success').style.display='none'">Перейти ко входу</button>
     </div>
   </div>
 </div>
@@ -961,22 +992,66 @@ async function registerDoctor(){
   const first=document.getElementById('r-first').value.trim();
   const email=document.getElementById('r-email').value.trim();
   const pass=document.getElementById('r-pass').value;
-  if(!last||!first||!email||pass.length<6){toast('Заполните все обязательные поля','warn');return;}
-  const btn=document.getElementById('reg-btn');btn.disabled=true;
+  const pass2=document.getElementById('r-pass2').value;
+
+  if(!last||!first||!email){toast('Заполните фамилию, имя и email','warn');return;}
+  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){toast('Введите корректный email','warn');return;}
+  if(pass.length<6){toast('Пароль должен быть минимум 6 символов','warn');return;}
+  if(pass!==pass2){toast('Пароли не совпадают','warn');return;}
+
+  const btn=document.getElementById('reg-btn');btn.disabled=true;btn.textContent='Регистрация...';
+
+  // Проверяем не занят ли email
+  const existing=await get('doctors',`email=eq.${encodeURIComponent(email)}&limit=1`);
+  if(existing.length){
+    toast('Этот email уже зарегистрирован. Войдите в систему.','crit');
+    btn.disabled=false;btn.textContent='✓ Зарегистрироваться';return;
+  }
+
   const mid=document.getElementById('r-mid').value.trim();
   const name=`${last} ${first}${mid?' '+mid:''}`;
   const short=`${last} ${first[0]}.${mid?mid[0]+'.':''}`;
-  const roleMap={Doctor:'physician',Resuscitator:'intensivist',Surgeon:'intensivist',Laboratory_Assistant:'laborant',Administrator:'admin',Nurse:'physician'};
-  const dbRole=roleMap[document.getElementById('r-role').value]||'physician';
+
+  // Полный маппинг 18 ролей в 4 системные роли БД
+  const roleMap={
+    Administrator:'admin', Chief_Doctor:'admin', Deputy_Chief_Doctor:'admin',
+    Head_of_Department:'admin', Audit_User:'admin',
+    Resuscitator:'intensivist', Anesthesiologist:'intensivist', Surgeon:'intensivist',
+    Laboratory_Assistant:'laborant',
+    Doctor:'physician', Cardiologist:'physician', Therapist:'physician',
+    Neurologist:'physician', Nurse:'physician', Head_Nurse:'physician',
+    Registrar:'physician', Statistician:'physician', Pharmacist:'physician'
+  };
+  const selectedRole=document.getElementById('r-role').value;
+  const dbRole=roleMap[selectedRole]||'physician';
+
   const res=await post('doctors',{name,short_name:short,role:dbRole,
     department:document.getElementById('r-dept').value,
-    specialty:document.getElementById('r-spec').value,
+    specialty:document.getElementById('r-spec').value||roleLabel(selectedRole),
     license_number:document.getElementById('r-lic').value||`ЛВ-${Date.now()}`,
     phone:document.getElementById('r-phone').value,email,
-    password_hash:'demo',is_active:true,is_verified:false});
-  if(res){toast('Аккаунт создан! Ожидайте активации администратором','ok');showScr('login');}
-  else toast('Ошибка. Возможно email уже используется','crit');
-  btn.disabled=false;
+    password_hash:pass, // сохраняем реальный пароль введённый пользователем
+    is_active:true,is_verified:false});
+
+  if(res){
+    // Аудит регистрации
+    const newId=Array.isArray(res)?res[0]?.id:res.id;
+    if(newId)await post('audit_log',{doctor_id:newId,action:'USER_REGISTERED',resource_path:'/auth/register'});
+
+    showRegSuccess(name,email,roleLabel(selectedRole));
+    clrF(['r-last','r-first','r-mid','r-spec','r-lic','r-phone','r-email','r-pass','r-pass2']);
+  } else {
+    toast('Ошибка регистрации. Попробуйте снова','crit');
+  }
+  btn.disabled=false;btn.textContent='✓ Зарегистрироваться';
+}
+
+function showRegSuccess(name,email,role){
+  document.getElementById('reg-form').style.display='none';
+  document.getElementById('reg-success').style.display='block';
+  document.getElementById('rs-name').textContent=name;
+  document.getElementById('rs-email').textContent=email;
+  document.getElementById('rs-role').textContent=role;
 }
 async function logout(){
   await post('audit_log',{doctor_id:doctor.id,action:'USER_LOGOUT',resource_path:'/auth/logout'});
